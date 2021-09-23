@@ -1,4 +1,5 @@
-from .start import dp
+from .registration import dp
+# from .start import dp
 from .help import dp
 from .echo import dp
 
