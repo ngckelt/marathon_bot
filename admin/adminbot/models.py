@@ -43,6 +43,19 @@ class FunnelUsers(Users):
         verbose_name_plural = "Пользователи, которые запустили бота"
 
 
+class OutOfMarathonUsers(TimeBasedModel):
+    marathon_member = models.ForeignKey(MarathonMembers, verbose_name="Запись в участниках марафона",
+                                        on_delete=models.CASCADE)
+
+    def delete(self, *args, **kwargs):
+        MarathonMembers.objects.filter(self.marathon_member).update(on_marathon=True)
+        super(OutOfMarathonUsers, self).delete(*args, **kwargs)
+
+    class Meta:
+        verbose_name = "Пользователь, выбывший из марафона"
+        verbose_name_plural = "Пользователи, выбывшие из марафона"
+
+
 class Moderators(Users):
 
     class Meta:
@@ -52,8 +65,8 @@ class Moderators(Users):
 
 class Timestamps(TimeBasedModel):
     marathon_member = models.ForeignKey(MarathonMembers, verbose_name="Участник марафона", on_delete=models.CASCADE)
-    first_timestamp = models.PositiveIntegerField(verbose_name="Дедлайн первой отметки в милисекундах")
-    last_timestamp = models.PositiveIntegerField(verbose_name="Дедлайн второй отметки в млмсекундах")
+    first_timestamp = models.PositiveBigIntegerField(verbose_name="Дедлайн первой отметки в милисекундах")
+    last_timestamp = models.PositiveBigIntegerField(verbose_name="Дедлайн второй отметки в млмсекундах")
     first_timestamp_success = models.BooleanField(verbose_name="Статус первой отметки", default=False)
     last_timestamp_success = models.BooleanField(verbose_name="Статус втрой отметки", default=False)
 
@@ -63,6 +76,7 @@ class Timestamps(TimeBasedModel):
     class Meta:
         verbose_name = "Временная отметка"
         verbose_name_plural = "Временные отметки"
+
 
 
 
