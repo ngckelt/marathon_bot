@@ -6,7 +6,7 @@ from loader import dp
 from states.registration.registration import RegisterMarathonMember
 from keyboards.inline.wakeup_time_markup import wakeup_time_markup, wakeup_time_callback
 
-from utils.db_api import db
+from utils.db_api.db import MarathonMembersModel
 
 
 @dp.message_handler(CommandStart())
@@ -44,7 +44,7 @@ async def get_wakeup_time(callback: types.CallbackQuery, callback_data: dict, st
 async def get_msk_timedelta(message: types.Message, state: FSMContext):
     msk_timedelta = message.text  # needs to add some checks here
     state_data = await state.get_data()
-    db.add_marathon_member(
+    MarathonMembersModel.add_marathon_member(
         telegram_id=message.from_user.id,
         username=message.from_user.username,
         msk_timedelta=msk_timedelta,

@@ -39,7 +39,7 @@ class ModeratorsModel:
         return Moderators.objects.all().first()
 
 
-class PotentialMarathonMembersModel:
+class FunnelUsersModel:
     ...
 
 

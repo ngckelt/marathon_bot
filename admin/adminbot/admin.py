@@ -11,12 +11,12 @@ class MarathonMembersAdmin(admin.ModelAdmin):
         model = models.MarathonMembers
 
 
-@admin.register(models.PotentialMarathonMembers)
-class PotentialMarathonMembers(admin.ModelAdmin):
+@admin.register(models.FunnelUsers)
+class FunnelUsersAdmin(admin.ModelAdmin):
     list_display = ['telegram_id', 'last_message']
 
     class Meta:
-        models = models.PotentialMarathonMembers
+        models = models.FunnelUsers
 
 
 @admin.register(models.Moderators)

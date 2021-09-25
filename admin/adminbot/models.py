@@ -35,7 +35,7 @@ class MarathonMembers(Users):
         verbose_name_plural = "Участники марафона"
 
 
-class PotentialMarathonMembers(Users):
+class FunnelUsers(Users):
     last_message = models.CharField(verbose_name="Последнее сообщение", max_length=255)
 
     class Meta:
