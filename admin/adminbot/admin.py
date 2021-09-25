@@ -11,4 +11,26 @@ class MarathonMembersAdmin(admin.ModelAdmin):
         model = models.MarathonMembers
 
 
+@admin.register(models.PotentialMarathonMembers)
+class PotentialMarathonMembers(admin.ModelAdmin):
+    list_display = ['telegram_id', 'last_message']
+
+    class Meta:
+        models = models.PotentialMarathonMembers
+
+
+@admin.register(models.Moderators)
+class ModeratorsAdmin(admin.ModelAdmin):
+    list_display = ['telegram_id']
+
+    class Meta:
+        model = models.Moderators
+
+
+@admin.register(models.Timestamps)
+class TimestampsAdmin(admin.ModelAdmin):
+    list_display = ['marathon_member', 'first_timestamp_success', 'last_timestamp_success']
+
+    class Meta:
+        model = models.Timestamps
 
