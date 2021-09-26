@@ -6,6 +6,7 @@ from loader import dp
 from states.registration.registration import RegisterMarathonMember
 from keyboards.inline.wakeup_time_markup import wakeup_time_markup, wakeup_time_callback
 from keyboards.inline.yes_or_no_markup import yes_or_no_markup, yes_or_no_callback
+from keyboards.default.marathon_members.main_markup import main_markup
 
 from utils.db_api.db import MarathonMembersModel
 from handlers.users.utils.registration_utils import correct_msk_timedelta, only_cyrillic
@@ -87,7 +88,10 @@ async def get_msk_timedelta(message: types.Message, state: FSMContext):
             wakeup_time=state_data.get('wakeup_time')
         )
 
-        await message.answer("Регистрация успешно завершена! С завтрашнего дня Вам необходимо будет присылать отчеты")
+        await message.answer(
+            text="Регистрация успешно завершена! С завтрашнего дня Вам необходимо будет присылать отчеты",
+            reply_markup=main_markup
+        )
         await state.finish()
     else:
         await message.answer("Недопустимый диапазон разницы во времени")

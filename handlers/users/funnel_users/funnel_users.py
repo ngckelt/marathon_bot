@@ -5,6 +5,7 @@ from aiogram.dispatcher.filters.builtin import CommandStart
 from loader import dp
 
 from keyboards.default.funnel_users import funnel_users_markups
+from keyboards.default.funnel_users.funnel_users_markups import create_markup
 from keyboards.inline.funnel_users import funnel_users_markups as inline_funnel_users_markups
 
 from states.funnel_users.funnel_users import FunnelUsers
@@ -22,7 +23,7 @@ async def has_idea(message: types.Message, state: FSMContext):
 
     await message.answer(
         "Признавайся, есть ли у тебя идея внедрить привычку ежедневно просыпаться в 5-6 утра? 😉",
-        reply_markup=funnel_users_markups.yes_and_no_markup
+        reply_markup=create_markup(2, 'ДА', 'НЕТ')
     )
     await FunnelUsers.is_interested.set()
 
@@ -37,7 +38,11 @@ async def bot_start(message: types.Message):
         f"Надо ли мне?” Одно знаю точно: ничего не бывает просто так. И если ты здесь, то в твоём пространстве "
         f"вариантов точно есть ТЫ"
         f"который(ая) встает в 5 утра и кайфует от этого",
-        reply_markup=funnel_users_markups.try_wakeup_markup
+        # reply_markup=types.ReplyKeyboardRemove()
+        reply_markup=create_markup(
+            2, 'Да, было дело', 'НЕТ, но хочу попробовать', 'Пробовал(а), но не получается',
+            'Я не сумасшедший',
+        )
     )
 
     await FunnelUsers.try_wakeup.set()
@@ -66,7 +71,7 @@ async def try_wakeup(message: types.Message, state: FSMContext):
                              'умней.”')
         await message.answer('А Вильям Шекспир считал, что “У всякого безумия есть своя логика”. Как думаешь, '
                              'они правы?',
-                             reply_markup=funnel_users_markups.are_they_right_markup
+                             reply_markup=create_markup(2, 'В этом что-то есть', 'Безумцы)')
                              )
         await FunnelUsers.are_they_right.set()
         return
@@ -103,7 +108,7 @@ async def is_interested(message: types.Message, state: FSMContext):
         "💪 Победишь лень и вечные отмазками.\n\n"
         "Ну как тебе предложение?\n\n"
         "Рассказать тебе побольше о нас?",
-        reply_markup=funnel_users_markups.interested_markup
+        reply_markup=create_markup(2, 'ДА, расскажи', 'Хочу узнать как это работает')
     )
     await FunnelUsers.about_author.set()
 
@@ -117,7 +122,7 @@ async def has_idea_get_answer(message: types.Message, state: FSMContext):
     elif text == "НЕТ":
         await message.answer("Ты наверно думаешь это непосильная задача. Позволь, ещё немного порассуждаем. "
                              "Возможно ты передумаешь.",
-                             reply_markup=funnel_users_markups.lets_try_markup
+                             reply_markup=create_markup(2, 'Согласен', 'Давай попробуем')
                              )
         await FunnelUsers.lets_try.set()
 
@@ -129,9 +134,9 @@ async def lets_try(message: types.Message, state: FSMContext):
 
 async def instruction(message: types.Message, state: FSMContext, author=False):
 
-    markup = funnel_users_markups.are_you_ready_markup
+    markup = create_markup(2, 'Попробовать 3 дня челленджа', 'Посмотреть отзывы')
     if author:
-        markup = funnel_users_markups.are_you_ready_with_author_markup
+        markup = create_markup(2, 'Попробовать 3 дня челленджа', 'Посмотреть отзывы', 'Узнать о создателе челлендажа')
     await message.answer(
         "КАК ВНЕДРЯЕТСЯ ПРИВЫЧКА\n"
         "Исследования гласят, что на внедрение привычки необходимо от 5 до 254 дней. Да 😳 Представляете какой разбег!\n"
@@ -185,10 +190,10 @@ async def instruction(message: types.Message, state: FSMContext, author=False):
 
 
 async def author_description(message, state, challenge_markup=False):
-    markup = funnel_users_markups.are_you_ready_markup
+    markup = create_markup(2, 'Попробовать 3 дня челленджа', 'Посмотреть отзывы')
     if challenge_markup:
-        markup = funnel_users_markups.how_challenge_works_markup
-    # send photo
+        markup = create_markup(1, 'Как работает Челлендж')
+    # needs to send photo
     await message.answer(
         "Меня зовут Любовь Скабелина. Я встаю в 5 утра уже более 10 лет. "
         "Начала практиковать ранние подъёмы ещё когда Хэл Элрод про них не задумывался. Да, это автор "

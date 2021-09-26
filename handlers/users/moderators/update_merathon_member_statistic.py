@@ -11,14 +11,16 @@ from loader import bot
 from utils.db_api.db import MarathonMembersModel
 
 
-@dp.message_handler(update_marathon_member_statistic_callback.filter())
+@dp.callback_query_handler(update_marathon_member_statistic_callback.filter())
 async def update_marathon_member_statistic(callback: types.CallbackQuery, callback_data: dict):
     await callback.answer()
-    text = callback.message.text + "\n\nНовый текст"
+    text = callback.message.text
+    text += '\n✅ Обработано: '
     marathon_member_telegram_id = callback_data.get('member_telegram_id')
     accept = callback_data.get('accept')
-    marathon_member = MarathonMembersModel.get_marathon_member()
+    marathon_member = await MarathonMembersModel.get_marathon_member(marathon_member_telegram_id)
     if accept == 'True':
+        text += "Зачтено"
         await MarathonMembersModel.update_marathon_member(
             telegram_id=marathon_member_telegram_id,
             marathon_day=marathon_member.marathon_day + 1,
@@ -32,7 +34,7 @@ async def update_marathon_member_statistic(callback: types.CallbackQuery, callba
         except ChatNotFound:
             ...
     else:
-        ...
+        text += "Не зачтено"
     await callback.message.edit_text(text)
 
 

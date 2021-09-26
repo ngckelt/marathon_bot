@@ -13,7 +13,8 @@ def format_time(time: str) -> str:
 def times_equal(now: datetime, user_time: str, msk_timedelta: int) -> bool:
     delta = timedelta(hours=msk_timedelta)
     time_with_delta = now + delta
-    return format_time(time_with_delta.strftime("%H:%M")) == format_time(user_time)
+    print(time_with_delta.strftime("%H-%M"), user_time)
+    return format_time(time_with_delta.strftime("%H-%M")) == format_time(user_time)
 
 
 def set_timestamp(minutes: int) -> int:

@@ -6,7 +6,7 @@ from aiogram.utils.exceptions import ChatNotFound
 from utils.db_api.db import MarathonMembersModel, TimestampsModel, \
     ModeratorsModel, OutOfMarathonUsersModel
 from loader import bot
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from keyboards.inline.moderators import update_marathon_member_statistic_markup
 
@@ -16,46 +16,12 @@ BASE_SLEEP_SECONDS = 1
 MIN_IN_SEC = 60
 FIRST_TIMESTAMP_MINUTES = 10
 LAST_TIMESTAMP_MINUTES = 70
-
-
-async def check_first_timestamp(marathon_member):
-    await asyncio.sleep(FIRST_TIMESTAMP_MINUTES)
-
-
-async def check_last_timestamp(marathon_member):
-    await asyncio.sleep(LAST_TIMESTAMP_MINUTES)
-
-
-# Похвалить пользователя
-async def praise_marathon_member(marathon_member, marathon_day):
-    if marathon_day == 1:
-        message = "Поздравляю с первым подъемом"
-    elif marathon_day == 7 or marathon_day == 30:
-        message = "Поздравляю, ты ближе к цели"
-    else:
-        message = f"Ты молодец, задание засчитано, ты уже сделал {marathon_day}/60"
-
-    try:
-        await bot.send_message(
-            chat_id=marathon_member.telegram_id,
-            message=message
-        )
-    except ChatNotFound:
-        ...
-
-
-async def timestamp_complete(marathon_member):
-    marathon_day = marathon_member.marathon_day + 1
-    await MarathonMembersModel.update_marathon_member(
-        marathon_member.telegram_id,
-        marathon_day=marathon_day
-    )
-    await praise_marathon_member(marathon_member, marathon_day)
+MAX_FAILED_DAYS = 3
 
 
 # Наругать пользователя
 async def scold_marathon_member(marathon_member, failed_days):
-    message = f"Вы пропустили сдачу отчета {failed_days} из 3"
+    message = f"Вы пропустили сдачу отчета {failed_days} из {MAX_FAILED_DAYS}"
     try:
         await bot.send_message(
             chat_id=marathon_member.telegram_id,
@@ -67,7 +33,11 @@ async def scold_marathon_member(marathon_member, failed_days):
 
 async def notify_moderator_about_failed_timestamp(marathon_member, failed_days):
     moderator = await ModeratorsModel.get_moderator()
-    message = f"@{marathon_member.username} пропустил сдачу отчета {failed_days}/3"
+    if marathon_member.username != 'Отсутствует':
+        message = f"@{marathon_member.username} пропустил сдачу отчета {failed_days}/{MAX_FAILED_DAYS}"
+    else:
+        message = f"Пользователь с id {marathon_member.telegram_id} " \
+                  f"пропустил сдачу отчета {failed_days}/{MAX_FAILED_DAYS}"
     try:
         await bot.send_message(
             chat_id=moderator.telegram_id,
@@ -91,58 +61,52 @@ async def notify_marathon_member_about_exclude_marathon(marathon_member):
         ...
 
 
-# async def timestamp_failed(marathon_member):
-#     failed_days = marathon_member.failed_days
-#     await scold_marathon_member(marathon_member, failed_days)
-#     if failed_days < 3:
-#         ...
-#     else:
-#         # send_to_moderators
-#         # ban_user
-#         # remove from marathon
-#         ...
+async def kick_from_marathon(marathon_member):
+    await OutOfMarathonUsersModel.add_out_of_marathon_user(marathon_member)
+    await notify_marathon_member_about_exclude_marathon(marathon_member)
+    await MarathonMembersModel.update_marathon_member(
+        telegram_id=marathon_member.telegram_id,
+        on_marathon=False
+    )
 
 
-async def check_timestamps(marathon_member):
-    print("Проверка запустилась")
-    await asyncio.sleep(30)
-    # await asyncio.sleep(LAST_TIMESTAMP_MINUTES * MIN_IN_SEC)
-    print("Проверка выспалась")
+async def fail_timestamp(marathon_member, failed_days):
+    await MarathonMembersModel.update_marathon_member(
+        telegram_id=marathon_member.telegram_id,
+        failed_days=failed_days
+    )
+    await TimestampsModel.delete_timestamp(marathon_member)
+    await scold_marathon_member(marathon_member, failed_days)
+    await notify_moderator_about_failed_timestamp(marathon_member, failed_days)
+
+
+async def check_timestamp(marathon_member):
+    await asyncio.sleep(LAST_TIMESTAMP_MINUTES * MIN_IN_SEC)
     timestamp = await TimestampsModel.get_timestamp(marathon_member)
     if timestamp is not None:
         failed_days = marathon_member.failed_days + 1
-        if failed_days == 3:
-            await OutOfMarathonUsersModel.add_out_of_marathon_user(marathon_member)
-            await notify_marathon_member_about_exclude_marathon(marathon_member)
-            await MarathonMembersModel.update_marathon_member(
-                telegram_id=marathon_member.telegram_id,
-                on_marathon=False
-            )
+        if failed_days == MAX_FAILED_DAYS:
+            await kick_from_marathon(marathon_member)
         else:
-            await MarathonMembersModel.update_marathon_member(
-                telegram_id=marathon_member.telegram_id,
-                failed_days=failed_days
-            )
-            await TimestampsModel.delete_timestamp(marathon_member)
-            await scold_marathon_member(marathon_member, failed_days)
-            await notify_moderator_about_failed_timestamp(marathon_member, failed_days)
+            await fail_timestamp(marathon_member, failed_days)
 
 
 async def add_timestamps_for_marathon_members():
     now = datetime.now()
     marathon_members = await MarathonMembersModel.get_marathon_members_by_filters(on_marathon=True)
     for member in marathon_members:
-        # if times_equal(now, member.wakeup_time, int(member.msk_timedelta)):
-        await TimestampsModel.add_timestamp(
-            marathon_member=member,
-            first_timestamp=set_timestamp(FIRST_TIMESTAMP_MINUTES),
-            last_timestamp=set_timestamp(LAST_TIMESTAMP_MINUTES)
-        )
-        await check_timestamps(member)
+        if times_equal(now=now, user_time=member.wakeup_time, msk_timedelta=int(member.msk_timedelta)):
+            await TimestampsModel.add_timestamp(
+                marathon_member=member,
+                first_timestamp=set_timestamp(FIRST_TIMESTAMP_MINUTES),
+                last_timestamp=set_timestamp(LAST_TIMESTAMP_MINUTES)
+            )
+            await check_timestamp(member)
 
 
 async def setup():
-    aioschedule.every().hours.at(":14").do(add_timestamps_for_marathon_members)
+    aioschedule.every().hours.at(":30").do(add_timestamps_for_marathon_members)
+    aioschedule.every().hours.at(":00").do(add_timestamps_for_marathon_members)
 
     while True:
         await aioschedule.run_pending()
