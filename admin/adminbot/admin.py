@@ -34,3 +34,10 @@ class TimestampsAdmin(admin.ModelAdmin):
     class Meta:
         model = models.Timestamps
 
+
+@admin.register(models.OutOfMarathonUsers)
+class OutOfMarathonUsersAdmin(admin.ModelAdmin):
+    list_display = ['marathon_member']
+
+    class Meta:
+        model = models.OutOfMarathonUsers

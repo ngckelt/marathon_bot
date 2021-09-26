@@ -1,7 +1,7 @@
 import time
 from datetime import timedelta, datetime
 
-MIN_IN_MS = 60000
+MIN_IN_SEC = 60
 
 
 def format_time(time: str) -> str:
@@ -17,5 +17,5 @@ def times_equal(now: datetime, user_time: str, msk_timedelta: int) -> bool:
 
 
 def set_timestamp(minutes: int) -> int:
-    return int(time.time()) + (MIN_IN_MS * minutes)
+    return int(time.time()) + (MIN_IN_SEC * minutes)
 

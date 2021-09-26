@@ -48,7 +48,7 @@ class OutOfMarathonUsers(TimeBasedModel):
                                         on_delete=models.CASCADE)
 
     def delete(self, *args, **kwargs):
-        MarathonMembers.objects.filter(self.marathon_member).update(on_marathon=True)
+        MarathonMembers.objects.filter(telegram_id=self.marathon_member.telegram_id).update(on_marathon=True)
         super(OutOfMarathonUsers, self).delete(*args, **kwargs)
 
     class Meta:
@@ -71,7 +71,7 @@ class Timestamps(TimeBasedModel):
     last_timestamp_success = models.BooleanField(verbose_name="Статус втрой отметки", default=False)
 
     def __str__(self):
-        return self.marathon_member
+        return self.marathon_member.name
 
     class Meta:
         verbose_name = "Временная отметка"

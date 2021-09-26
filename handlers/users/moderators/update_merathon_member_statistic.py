@@ -1,10 +1,12 @@
 from aiogram import types
 from aiogram.dispatcher import FSMContext
+from aiogram.utils.exceptions import ChatNotFound
 
 from keyboards.inline.moderators import update_marathon_member_statistic_markup,\
     update_marathon_member_statistic_callback
 
 from loader import dp
+from loader import bot
 
 from utils.db_api.db import MarathonMembersModel
 
@@ -22,6 +24,13 @@ async def update_marathon_member_statistic(callback: types.CallbackQuery, callba
             marathon_day=marathon_member.marathon_day + 1,
             failed_days=marathon_member.failed_days - 1
         )
+        try:
+            await bot.send_message(
+                chat_id=marathon_member.telegram_id,
+                text="Модератор зачел тебе пропущенный день!"
+            )
+        except ChatNotFound:
+            ...
     else:
         ...
     await callback.message.edit_text(text)
