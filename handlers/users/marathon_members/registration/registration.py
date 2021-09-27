@@ -48,22 +48,27 @@ async def get_wakeup_time(callback: types.CallbackQuery, callback_data: dict, st
     await RegisterMarathonMember.is_msk.set()
 
 
+async def finish_registration(user_id, username, state):
+    state_data = await state.get_data()
+    await MarathonMembersModel.add_marathon_member(
+        telegram_id=user_id,
+        username=username,
+        msk_timedelta=state_data.get('msk_timedelta'),
+        name=state_data.get('name').capitalize(),
+        wakeup_time=state_data.get('wakeup_time')
+    )
+
+
 @dp.callback_query_handler(yes_or_no_callback.filter(action='is_msk'), state=RegisterMarathonMember.is_msk)
 async def is_msk(callback: types.CallbackQuery, callback_data: dict, state: FSMContext):
     await callback.answer()
     choice = callback_data.get('choice')
     if choice == 'yes':
-        state_data = await state.get_data()
-        await MarathonMembersModel.add_marathon_member(
-            telegram_id=callback.message.from_user.id,
-            username=callback.message.from_user.username,
-            msk_timedelta=0,
-            name=state_data.get('name').capitalize(),
-            wakeup_time=state_data.get('wakeup_time')
-        )
-
+        await state.update_data(msk_timedelta='0')
+        await finish_registration(callback.from_user.id, callback.from_user.username, state)
         await callback.message.answer(
-            "Регистрация успешно завершена! С завтрашнего дня Вам необходимо будет присылать отчеты"
+            text="Регистрация успешно завершена! С завтрашнего дня Вам необходимо будет присылать отчеты",
+            reply_markup=main_markup
         )
         await state.finish()
     else:
@@ -79,15 +84,8 @@ async def is_msk(callback: types.CallbackQuery, callback_data: dict, state: FSMC
 async def get_msk_timedelta(message: types.Message, state: FSMContext):
     msk_timedelta = message.text
     if correct_msk_timedelta(msk_timedelta):
-        state_data = await state.get_data()
-        await MarathonMembersModel.add_marathon_member(
-            telegram_id=message.from_user.id,
-            username=message.from_user.username,
-            msk_timedelta=msk_timedelta,
-            name=state_data.get('name').capitalize(),
-            wakeup_time=state_data.get('wakeup_time')
-        )
-
+        await state.update_data(msk_timedelta=msk_timedelta)
+        await finish_registration(message.from_user.id, message.from_user.username, state)
         await message.answer(
             text="Регистрация успешно завершена! С завтрашнего дня Вам необходимо будет присылать отчеты",
             reply_markup=main_markup

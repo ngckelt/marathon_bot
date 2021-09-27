@@ -8,7 +8,16 @@ from keyboards.default.funnel_users import funnel_users_markups
 from keyboards.default.funnel_users.funnel_users_markups import create_markup
 from keyboards.inline.funnel_users import funnel_users_markups as inline_funnel_users_markups
 
+from utils.db_api.db import FunnelUsersModel
+
 from states.funnel_users.funnel_users import FunnelUsers
+
+
+async def update_last_message(message):
+    await FunnelUsersModel.update_funnel_user(
+        telegram_id=message.from_user.id,
+        last_message=message.text
+    )
 
 
 async def has_idea(message: types.Message, state: FSMContext):
@@ -30,6 +39,11 @@ async def has_idea(message: types.Message, state: FSMContext):
 
 @dp.message_handler(CommandStart())
 async def bot_start(message: types.Message):
+    await FunnelUsersModel.add_funnel_user(
+        telegram_id=message.from_user.id,
+        username=message.from_user.username,
+        last_message='/start'
+    )
     await message.answer(
         f"Привет, {message.from_user.first_name} 👋\n"
         f"Раз ты перешел(а) по этой ссылке - значит тебе интересны ранние подъёмы."
@@ -50,6 +64,7 @@ async def bot_start(message: types.Message):
 
 @dp.message_handler(state=FunnelUsers.try_wakeup)
 async def try_wakeup(message: types.Message, state: FSMContext):
+    await update_last_message(message)
     text = message.text
     if text == "Да, было дело":
         await message.answer('Ты молодец! Значит точно сможешь внедрить ранние подъёмы в свою жизнь на постоянной '
@@ -115,6 +130,7 @@ async def is_interested(message: types.Message, state: FSMContext):
 
 @dp.message_handler(state=FunnelUsers.has_idea)
 async def has_idea_get_answer(message: types.Message, state: FSMContext):
+    await update_last_message(message)
     text = message.text
     if text == 'ДА':
         await message.answer("Ура! Поздравляю с отличным решением, которое изменит твою жизнь к лучшему.")
@@ -193,7 +209,7 @@ async def author_description(message, state, challenge_markup=False):
     markup = create_markup(2, 'Попробовать 3 дня челленджа', 'Посмотреть отзывы')
     if challenge_markup:
         markup = create_markup(1, 'Как работает Челлендж')
-    # needs to send photo
+    await message.answer_photo("https://scontent-hel3-1.cdninstagram.com/v/t51.2885-15/e35/242610079_223786276467332_8893897483567551067_n.jpg?_nc_ht=scontent-hel3-1.cdninstagram.com&_nc_cat=108&_nc_ohc=ZqfmVba4MwgAX8krTGT&edm=AABBvjUBAAAA&ccb=7-4&oh=9cb83421c74be6ceb854e4843063f675&oe=6158807C&_nc_sid=83d603")
     await message.answer(
         "Меня зовут Любовь Скабелина. Я встаю в 5 утра уже более 10 лет. "
         "Начала практиковать ранние подъёмы ещё когда Хэл Элрод про них не задумывался. Да, это автор "
@@ -219,6 +235,7 @@ async def author_description(message, state, challenge_markup=False):
 
 @dp.message_handler(state=FunnelUsers.about_author)
 async def about_author(message: types.Message, state: FSMContext):
+    await update_last_message(message)
     text = message.text
     if text == "ДА, расскажи":
         await author_description(message, state, True)
@@ -238,4 +255,7 @@ async def about_author_message(message: types.Message, state: FSMContext):
     await author_description(message, state,)
 
 
+@dp.message_handler(text="Посмотреть отзывы")
+async def about_author_message(message: types.Message, state: FSMContext):
+    await message.answer("Это еще не делал")
 
