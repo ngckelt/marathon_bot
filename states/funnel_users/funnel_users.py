@@ -10,4 +10,7 @@ class FunnelUsers(StatesGroup):
     about_author = State()
     instruction = State()
 
+    
+
+
 

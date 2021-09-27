@@ -52,7 +52,6 @@ async def bot_start(message: types.Message):
         f"Надо ли мне?” Одно знаю точно: ничего не бывает просто так. И если ты здесь, то в твоём пространстве "
         f"вариантов точно есть ТЫ"
         f"который(ая) встает в 5 утра и кайфует от этого",
-        # reply_markup=types.ReplyKeyboardRemove()
         reply_markup=create_markup(
             2, 'Да, было дело', 'НЕТ, но хочу попробовать', 'Пробовал(а), но не получается',
             'Я не сумасшедший',
@@ -92,14 +91,19 @@ async def try_wakeup(message: types.Message, state: FSMContext):
         return
     else:
         await message.answer('Пожалуйста, выбери один из вариантов ответа')
+        return
 
     await FunnelUsers.has_idea.set()
 
 
 @dp.message_handler(state=FunnelUsers.are_they_right)
 async def are_they_right(message: types.Message, state: FSMContext):
-    await has_idea(message, state)
-    await FunnelUsers.has_idea.set()
+    if message.text == 'В этом что-то есть' or message.text == 'Безумцы)':
+        await update_last_message(message)
+        await has_idea(message, state)
+        await FunnelUsers.has_idea.set()
+    else:
+        await message.answer("Пожалуйста, выбери один из вариантов ответа")
 
 
 async def is_interested(message: types.Message, state: FSMContext):
@@ -141,15 +145,20 @@ async def has_idea_get_answer(message: types.Message, state: FSMContext):
                              reply_markup=create_markup(2, 'Согласен', 'Давай попробуем')
                              )
         await FunnelUsers.lets_try.set()
+    else:
+        await message.answer("Пожалуйста, выбери один из вариантов ответа")
 
 
 @dp.message_handler(state=FunnelUsers.lets_try)
 async def lets_try(message: types.Message, state: FSMContext):
-    await is_interested(message, state)
+    if message.text == 'Согласен' or message.text == 'Давай попробуем':
+        await update_last_message(message)
+        await is_interested(message, state)
+    else:
+        await message.answer("Пожалуйста, выбери один из вариантов ответа")
 
 
 async def instruction(message: types.Message, state: FSMContext, author=False):
-
     markup = create_markup(2, 'Попробовать 3 дня челленджа', 'Посмотреть отзывы')
     if author:
         markup = create_markup(2, 'Попробовать 3 дня челленджа', 'Посмотреть отзывы', 'Узнать о создателе челлендажа')
@@ -242,20 +251,28 @@ async def about_author(message: types.Message, state: FSMContext):
     elif text == "Хочу узнать как это работает":
         await instruction(message, state, author=True)
         await state.finish()
+    else:
+        await message.answer("Пожалуйста, выбери один из вариантов ответа")
 
 
 @dp.message_handler(state=FunnelUsers.instruction)
 async def send_instruction(message: types.Message, state: FSMContext):
-    await instruction(message, state)
-    await state.finish()
+    if message.text == 'Как работает Челлендж':
+        await update_last_message(message)
+        await instruction(message, state)
+        await state.finish()
+    else:
+        await message.answer("Пожалуйста, выбери один из вариантов ответа")
 
 
 @dp.message_handler(text="Узнать о создателе челлендажа")
 async def about_author_message(message: types.Message, state: FSMContext):
+    await update_last_message(message)
     await author_description(message, state,)
 
 
 @dp.message_handler(text="Посмотреть отзывы")
 async def about_author_message(message: types.Message, state: FSMContext):
+    await update_last_message(message)
     await message.answer("Это еще не делал")
 

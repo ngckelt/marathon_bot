@@ -87,7 +87,7 @@ async def get_msk_timedelta(message: types.Message, state: FSMContext):
         await state.update_data(msk_timedelta=msk_timedelta)
         await finish_registration(message.from_user.id, message.from_user.username, state)
         await message.answer(
-            text="Регистрация успешно завершена! С завтрашнего дня Вам необходимо будет присылать отчеты",
+            text="Регистрация успешно завершена! С завтрашнего дня тебе необходимо будет присылать отчеты",
             reply_markup=main_markup
         )
         await state.finish()
