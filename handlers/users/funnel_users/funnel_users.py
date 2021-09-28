@@ -273,10 +273,12 @@ async def send_instruction(message: types.Message, state: FSMContext):
 async def about_author_message(message: types.Message, state: FSMContext):
     await update_last_message(message)
     await author_description(message, state,)
+    await state.finish()
 
 
 @dp.message_handler(text="Посмотреть отзывы")
 async def about_author_message(message: types.Message, state: FSMContext):
     await update_last_message(message)
     await message.answer("Это еще не делал")
+    await state.finish()
 
