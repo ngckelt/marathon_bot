@@ -63,7 +63,7 @@ class FunnelUsersModel:
     @staticmethod
     @sync_to_async
     def get_funnel_user(telegram_id):
-        return FunnelUsers.objects.filter(telegram_id=telegram_id)
+        return FunnelUsers.objects.filter(telegram_id=telegram_id).first()
 
 
 class OutOfMarathonUsersModel:

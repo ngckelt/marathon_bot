@@ -8,17 +8,25 @@ from keyboards.inline.wakeup_time_markup import wakeup_time_markup, wakeup_time_
 from keyboards.inline.yes_or_no_markup import yes_or_no_markup, yes_or_no_callback
 from keyboards.default.marathon_members.main_markup import main_markup
 
-from utils.db_api.db import MarathonMembersModel
+from utils.db_api.db import MarathonMembersModel, FunnelUsersModel
 from handlers.users.utils.registration_utils import correct_msk_timedelta, only_cyrillic
 
 
 @dp.message_handler(text="Попробовать 3 дня челленджа")
 async def start_registration(message: types.Message):
-    await message.answer(
-        text="Отлично! Ты сделал правильный выбор! А теперь, давай познакомимся. Как тебя зовут?",
-        reply_markup=types.ReplyKeyboardRemove()
-    )
-    await RegisterMarathonMember.get_name.set()
+    marathon_member = await MarathonMembersModel.get_marathon_member(message.from_user.id)
+    if marathon_member is None:
+        await FunnelUsersModel.update_funnel_user(
+            telegram_id=message.from_user.id,
+            last_message="Попробовать 3 дня челленджа"
+        )
+        await message.answer(
+            text="Отлично! Ты сделал правильный выбор! А теперь, давай познакомимся. Как тебя зовут?",
+            reply_markup=types.ReplyKeyboardRemove()
+        )
+        await RegisterMarathonMember.get_name.set()
+    else:
+        await message.answer("Ты уже использовал эту команду")
 
 
 @dp.message_handler(state=RegisterMarathonMember.get_name)
@@ -73,7 +81,7 @@ async def is_msk(callback: types.CallbackQuery, callback_data: dict, state: FSMC
         await state.finish()
     else:
         await callback.message.answer(
-            "Укажи разницу во врмени с москвой, например:\n\n"
+            "Укажи разницу во врмени с Москвой, например:\n\n"
             "- если таое время <b>опережает</b> московское на <b>2 часа</b>, укажи <b>2</b>\n\n"
             "- если твое время <b>отстает</b> от Московского на <b>3 часа</b>, укажи <b>-3</b>\n\n"
         )

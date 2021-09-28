@@ -4,7 +4,7 @@ from . import models
 
 @admin.register(models.MarathonMembers)
 class MarathonMembersAdmin(admin.ModelAdmin):
-    list_display = ['name', 'username', 'marathon_day', 'failed_days', 'on_marathon']
+    list_display = ['name', 'username', 'wakeup_time', 'marathon_day', 'failed_days', 'on_marathon']
     search_fields = ['telegram_id', 'username']
 
     class Meta:
@@ -13,7 +13,7 @@ class MarathonMembersAdmin(admin.ModelAdmin):
 
 @admin.register(models.FunnelUsers)
 class FunnelUsersAdmin(admin.ModelAdmin):
-    list_display = ['telegram_id', 'last_message']
+    list_display = ['telegram_id', 'username', 'last_message']
 
     class Meta:
         models = models.FunnelUsers
@@ -21,7 +21,7 @@ class FunnelUsersAdmin(admin.ModelAdmin):
 
 @admin.register(models.Moderators)
 class ModeratorsAdmin(admin.ModelAdmin):
-    list_display = ['telegram_id']
+    list_display = ['telegram_id', 'username']
 
     class Meta:
         model = models.Moderators

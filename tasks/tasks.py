@@ -15,7 +15,7 @@ from .utils import times_equal, set_timestamp
 BASE_SLEEP_SECONDS = 1
 MIN_IN_SEC = 60
 FIRST_TIMESTAMP_MINUTES = 10
-LAST_TIMESTAMP_MINUTES = 70
+LAST_TIMESTAMP_MINUTES = 60
 MAX_FAILED_DAYS = 3
 
 
@@ -27,7 +27,7 @@ async def scold_marathon_member(marathon_member, failed_days):
             chat_id=marathon_member.telegram_id,
             text=message
         )
-    except ChatNotFound:
+    except:
         ...
 
 
@@ -44,7 +44,7 @@ async def notify_moderator_about_failed_timestamp(marathon_member, failed_days):
             text=message,
             reply_markup=update_marathon_member_statistic_markup(marathon_member.telegram_id)
         )
-    except ChatNotFound:
+    except:
         ...
 
 
@@ -57,7 +57,7 @@ async def notify_marathon_member_about_exclude_marathon(marathon_member):
             chat_id=marathon_member.telegram_id,
             text=message
         )
-    except ChatNotFound:
+    except:
         ...
 
 
@@ -70,7 +70,7 @@ async def kick_from_marathon(marathon_member):
     )
 
 
-async def fail_timestamp(marathon_member, failed_days):
+async def update_marathon_member_statistic(marathon_member, failed_days):
     await MarathonMembersModel.update_marathon_member(
         telegram_id=marathon_member.telegram_id,
         failed_days=failed_days
@@ -80,15 +80,25 @@ async def fail_timestamp(marathon_member, failed_days):
     await notify_moderator_about_failed_timestamp(marathon_member, failed_days)
 
 
+async def fail_timestamp(marathon_member):
+    failed_days = marathon_member.failed_days + 1
+    if failed_days == MAX_FAILED_DAYS:
+        await kick_from_marathon(marathon_member)
+    else:
+        await update_marathon_member_statistic(marathon_member, failed_days)
+
+
 async def check_timestamp(marathon_member):
+    await asyncio.sleep(FIRST_TIMESTAMP_MINUTES * MIN_IN_SEC)
+    timestamp = await TimestampsModel.get_timestamp(marathon_member)
+    if timestamp is not None:
+        if not timestamp.first_timestamp_success:
+            await fail_timestamp(marathon_member)
+
     await asyncio.sleep(LAST_TIMESTAMP_MINUTES * MIN_IN_SEC)
     timestamp = await TimestampsModel.get_timestamp(marathon_member)
     if timestamp is not None:
-        failed_days = marathon_member.failed_days + 1
-        if failed_days == MAX_FAILED_DAYS:
-            await kick_from_marathon(marathon_member)
-        else:
-            await fail_timestamp(marathon_member, failed_days)
+        await fail_timestamp(marathon_member)
 
 
 async def add_timestamps_for_marathon_members():

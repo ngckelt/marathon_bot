@@ -19,7 +19,7 @@ async def catch_video_note(message: types.Message):
             )
             await message.answer("Отлично! Видеосообщение засчитано")
     else:
-        await message.answer("Таймстемпа нету")
+        await message.answer("Неизвестный запрос")
 
 
 @dp.message_handler()
@@ -46,7 +46,7 @@ async def catch_message(message: types.Message):
                 f"{seconds_to_time(timestamp.first_timestamp - time.time())}"
             )
     else:
-        await message.answer("Таймстемпа нету")
+        await message.answer("Неизвестный запрос")
 
 
 

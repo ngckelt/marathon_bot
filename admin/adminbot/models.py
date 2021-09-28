@@ -14,7 +14,7 @@ class Users(TimeBasedModel):
     username = models.CharField(verbose_name="Юзернейм в телеграмме", default="Отсутствует", max_length=30)
 
     def __str__(self):
-        if self.username != 'Отсутствует':
+        if self.username != "Отсутствует":
             return self.username
         return self.telegram_id
 
@@ -48,7 +48,10 @@ class OutOfMarathonUsers(TimeBasedModel):
                                         on_delete=models.CASCADE)
 
     def delete(self, *args, **kwargs):
-        MarathonMembers.objects.filter(telegram_id=self.marathon_member.telegram_id).update(on_marathon=True)
+        MarathonMembers.objects.filter(telegram_id=self.marathon_member.telegram_id).update(
+            on_marathon=True,
+            failed_days=0
+        )
         super(OutOfMarathonUsers, self).delete(*args, **kwargs)
 
     class Meta:
