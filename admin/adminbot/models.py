@@ -23,7 +23,9 @@ class Users(TimeBasedModel):
 
 
 class MarathonMembers(Users):
-    name = models.CharField(verbose_name="Имя", max_length=255)
+    first_name = models.CharField(verbose_name="Имя", max_length=255, null=True)
+    last_name = models.CharField(verbose_name="Фамилия", max_length=255, null=True)
+    phone = models.CharField(verbose_name="Телефон", max_length=100, null=True)
     msk_timedelta = models.CharField(verbose_name="Разница с Москвой", max_length=5)
     wakeup_time = models.CharField(verbose_name="Время подъема", max_length=10)
     marathon_day = models.PositiveIntegerField(verbose_name="День марафона", default=0)
@@ -37,6 +39,9 @@ class MarathonMembers(Users):
 
 class FunnelUsers(Users):
     last_message = models.CharField(verbose_name="Последнее сообщение", max_length=255)
+    started_marathon = models.BooleanField(verbose_name="Начал марафон", default=False)
+    last_update_time = models.PositiveIntegerField(verbose_name="Время последнего сообщения", default=0)
+    on_marathon_registration = models.BooleanField(verbose_name="Регистрируется на марафон", default=False)
 
     class Meta:
         verbose_name = "Пользователь, который запустил бота"

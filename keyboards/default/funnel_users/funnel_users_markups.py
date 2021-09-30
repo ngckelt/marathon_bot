@@ -21,4 +21,3 @@ def create_markup(row_width, *text_options):
     markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
     return markup
 
-

@@ -1,3 +1,5 @@
+import time
+
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.builtin import CommandStart
@@ -13,10 +15,11 @@ from utils.db_api.db import FunnelUsersModel
 from states.funnel_users.funnel_users import FunnelUsers
 
 
-async def update_last_message(message):
+async def update_funnel_user(message):
     await FunnelUsersModel.update_funnel_user(
         telegram_id=message.from_user.id,
-        last_message=message.text
+        last_message=message.text,
+        last_update_time=time.time()
     )
 
 
@@ -44,7 +47,8 @@ async def bot_start(message: types.Message):
     await FunnelUsersModel.add_funnel_user(
         telegram_id=message.from_user.id,
         username=message.from_user.username,
-        last_message='/start'
+        last_message='/start',
+        last_update_time=time.time()
     )
     await message.answer(
         f"Привет, {message.from_user.first_name} 👋\n"
@@ -67,7 +71,7 @@ async def bot_start(message: types.Message):
 
 @dp.message_handler(state=FunnelUsers.try_wakeup)
 async def try_wakeup(message: types.Message, state: FSMContext):
-    await update_last_message(message)
+    await update_funnel_user(message)
     text = message.text
     if text == "Да, было дело":
         await message.answer('Ты молодец! Значит точно сможешь внедрить ранние подъёмы в свою жизнь на постоянной '
@@ -103,7 +107,7 @@ async def try_wakeup(message: types.Message, state: FSMContext):
 @dp.message_handler(state=FunnelUsers.are_they_right)
 async def are_they_right(message: types.Message, state: FSMContext):
     if message.text == 'В этом что-то есть' or message.text == 'Безумцы)':
-        await update_last_message(message)
+        await update_funnel_user(message)
         await has_idea(message, state)
         await FunnelUsers.has_idea.set()
     else:
@@ -138,7 +142,7 @@ async def is_interested(message: types.Message, state: FSMContext):
 
 @dp.message_handler(state=FunnelUsers.has_idea)
 async def has_idea_get_answer(message: types.Message, state: FSMContext):
-    await update_last_message(message)
+    await update_funnel_user(message)
     text = message.text
     if text == 'ДА':
         await message.answer("Ура! Поздравляю с отличным решением, которое изменит твою жизнь к лучшему.")
@@ -156,7 +160,7 @@ async def has_idea_get_answer(message: types.Message, state: FSMContext):
 @dp.message_handler(state=FunnelUsers.lets_try)
 async def lets_try(message: types.Message, state: FSMContext):
     if message.text == 'Согласен' or message.text == 'Давай попробуем':
-        await update_last_message(message)
+        await update_funnel_user(message)
         await is_interested(message, state)
     else:
         await message.answer("Пожалуйста, выбери один из вариантов ответа")
@@ -248,7 +252,7 @@ async def author_description(message, state, challenge_markup=False):
 
 @dp.message_handler(state=FunnelUsers.about_author)
 async def about_author(message: types.Message, state: FSMContext):
-    await update_last_message(message)
+    await update_funnel_user(message)
     text = message.text
     if text == "ДА, расскажи":
         await author_description(message, state, True)
@@ -262,7 +266,7 @@ async def about_author(message: types.Message, state: FSMContext):
 @dp.message_handler(state=FunnelUsers.instruction)
 async def send_instruction(message: types.Message, state: FSMContext):
     if message.text == 'Как работает Челлендж':
-        await update_last_message(message)
+        await update_funnel_user(message)
         await instruction(message, state)
         await state.finish()
     else:
@@ -271,14 +275,14 @@ async def send_instruction(message: types.Message, state: FSMContext):
 
 @dp.message_handler(text="Узнать о создателе челлендажа")
 async def about_author_message(message: types.Message, state: FSMContext):
-    await update_last_message(message)
+    await update_funnel_user(message)
     await author_description(message, state,)
     await state.finish()
 
 
 @dp.message_handler(text="Посмотреть отзывы")
 async def about_author_message(message: types.Message, state: FSMContext):
-    await update_last_message(message)
+    await update_funnel_user(message)
     await message.answer("Это еще не делал")
     await state.finish()
 

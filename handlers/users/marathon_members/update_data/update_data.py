@@ -28,4 +28,10 @@ async def update_wakeup_time(callback: types.CallbackQuery, callback_data: dict,
     await state.finish()
 
 
+@dp.message_handler(state=UpdateMarathonMember.update_wakeup_time)
+async def update_wakeup_time_error(message: types.Message):
+    await message.answer("Пожалуйста, выбери один из вариантов ответа")
+
+
+
 

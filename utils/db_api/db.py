@@ -6,11 +6,13 @@ class MarathonMembersModel:
 
     @staticmethod
     @sync_to_async
-    def add_marathon_member(telegram_id, username, name, msk_timedelta, wakeup_time):
+    def add_marathon_member(telegram_id, username, first_name, last_name, phone, msk_timedelta, wakeup_time):
         MarathonMembers.objects.create(
             telegram_id=telegram_id,
             username=username,
-            name=name,
+            first_name=first_name,
+            last_name=last_name,
+            phone=phone,
             msk_timedelta=msk_timedelta,
             wakeup_time=wakeup_time
         )
@@ -48,11 +50,12 @@ class FunnelUsersModel:
 
     @staticmethod
     @sync_to_async
-    def add_funnel_user(telegram_id, username, last_message):
+    def add_funnel_user(telegram_id, username, last_message, last_update_time):
         FunnelUsers.objects.create(
             telegram_id=telegram_id,
             username=username,
-            last_message=last_message
+            last_message=last_message,
+            last_update_time=last_update_time
         )
 
     @staticmethod
@@ -64,6 +67,16 @@ class FunnelUsersModel:
     @sync_to_async
     def get_funnel_user(telegram_id):
         return FunnelUsers.objects.filter(telegram_id=telegram_id).first()
+
+    @staticmethod
+    @sync_to_async
+    def get_funnel_users():
+        return FunnelUsers.objects.all()
+
+    @staticmethod
+    @sync_to_async
+    def get_funnel_users_by_filters(**filters):
+        return FunnelUsers.objects.filter(**filters)
 
 
 class OutOfMarathonUsersModel:

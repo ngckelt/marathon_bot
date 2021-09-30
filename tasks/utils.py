@@ -2,6 +2,12 @@ import time
 from datetime import timedelta, datetime
 
 MIN_IN_SEC = 60
+BASE_SLEEP_SECONDS = 1
+FIRST_TIMESTAMP_MINUTES = 10
+LAST_TIMESTAMP_MINUTES = 60
+MAX_FAILED_DAYS = 3
+HALF_AN_HOUR_IN_SEC = 1800
+DAY_IN_SEC = 86400
 
 
 def format_time(str_time: str) -> str:
