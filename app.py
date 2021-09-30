@@ -8,8 +8,9 @@ import os
 async def on_startup(dp):
     from utils import on_startup_notify
     import filters
+    filters.setup(dp)
     import middlewares
-    
+
     # await on_startup_notify(dp)
     # await set_default_commands(dp)
 
@@ -21,8 +22,8 @@ async def on_shutdown(dp):
 
 def setup_django():
     os.environ.setdefault(
-         'DJANGO_SETTINGS_MODULE',
-         'admin.admin.settings',
+        'DJANGO_SETTINGS_MODULE',
+        'admin.admin.settings',
     )
     os.environ.update({'DJANGO_ALLOW_ASYNC_UNSAFE': 'true'})
     django.setup()
@@ -35,6 +36,7 @@ if __name__ == '__main__':
     from handlers import dp
 
     import tasks
+
     loop = asyncio.get_event_loop()
     loop.create_task(tasks.tasks.setup())
 
@@ -43,5 +45,3 @@ if __name__ == '__main__':
         on_startup=on_startup,
         on_shutdown=on_shutdown
     )
-
-
