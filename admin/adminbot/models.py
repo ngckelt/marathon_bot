@@ -86,7 +86,16 @@ class Timestamps(TimeBasedModel):
         verbose_name_plural = "Временные отметки"
 
 
+class Reviews(TimeBasedModel):
+    photo_id = models.CharField(verbose_name="ID фотографии", max_length=255, blank=True)
+    video_id = models.CharField(verbose_name="ID видео", max_length=255, blank=True)
+    # file = models.FileField(verbose_name="Файл", upload_to='files/', blank=True)
 
+    def __str__(self):
+        return f"Отзыв номер {self.pk}"
 
+    class Meta:
+        verbose_name = "Отзыв"
+        verbose_name_plural = "Отзывы"
 
 

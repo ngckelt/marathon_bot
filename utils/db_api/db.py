@@ -118,3 +118,11 @@ class TimestampsModel:
     def delete_timestamp(marathon_member):
         Timestamps.objects.filter(marathon_member=marathon_member).delete()
 
+
+class ReviewsModel:
+
+    @staticmethod
+    @sync_to_async
+    def get_reviews():
+        return Reviews.objects.all()
+

@@ -41,3 +41,12 @@ class OutOfMarathonUsersAdmin(admin.ModelAdmin):
 
     class Meta:
         model = models.OutOfMarathonUsers
+
+
+@admin.register(models.Reviews)
+class ReviewsAdmin(admin.ModelAdmin):
+
+    class Meta:
+        model = models.Reviews
+
+
