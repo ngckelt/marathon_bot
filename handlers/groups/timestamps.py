@@ -26,8 +26,7 @@ async def catch_video_note(message: types.Message):
         if timestamp is not None:
             current_time = time.time()
             # Видеосообщение вовремя
-            if 3 < 0:
-            # if timestamp.first_timestamp - current_time > 0:
+            if timestamp.first_timestamp - current_time > 0:
                 if not timestamp.first_timestamp_success:
                     await notify_marathon_member_about_success_first_timestamp(marathon_member)
                     await update_timestamp(marathon_member, first_timestamp_success=True)
@@ -37,8 +36,7 @@ async def catch_video_note(message: types.Message):
                                    f"{get_second_timestamp_deadline_time(marathon_member.wakeup_time)}"
                     await message.reply(text=message_text)
             # Опоздал видеосообщение
-            else:
-            # elif timestamp.first_timestamp - current_time < 0:
+            elif timestamp.first_timestamp - current_time < 0:
                 if marathon_member.failed_days + 1 == MAX_FAILED_DAYS:
                     await message.reply(f"Это действие должно быть выполнено до {marathon_member.wakeup_time}. "
                                         f"Это уже 3й пропуск. Ты обнулился")
@@ -54,6 +52,7 @@ async def catch_video_note(message: types.Message):
 
 @dp.message_handler(GroupOnly())
 async def catch_message(message: types.Message):
+    await message.reply("Я вижу сообщение")
     marathon_member = await MarathonMembersModel.get_marathon_member(message.from_user.id)
     if marathon_member is not None:
         timestamp = await TimestampsModel.get_timestamp(marathon_member)
