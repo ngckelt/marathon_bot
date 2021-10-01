@@ -26,9 +26,9 @@ class MarathonMembers(Users):
     first_name = models.CharField(verbose_name="Имя", max_length=255, null=True)
     last_name = models.CharField(verbose_name="Фамилия", max_length=255, null=True)
     phone = models.CharField(verbose_name="Телефон", max_length=100, null=True)
-    msk_timedelta = models.CharField(verbose_name="Разница с Москвой", max_length=5)
+    msk_timedelta = models.IntegerField(verbose_name="Разница с Москвой", default=0)
     wakeup_time = models.CharField(verbose_name="Время подъема", max_length=10)
-    marathon_day = models.PositiveIntegerField(verbose_name="День марафона", default=0)
+    marathon_day = models.PositiveIntegerField(verbose_name="День марафона", default=1)
     failed_days = models.PositiveIntegerField(verbose_name="Дней пропущено", default=0)
     on_marathon = models.BooleanField(verbose_name="Участвует в марафоне", default=True)
 
@@ -79,7 +79,7 @@ class Timestamps(TimeBasedModel):
     last_timestamp_success = models.BooleanField(verbose_name="Статус втрой отметки", default=False)
 
     def __str__(self):
-        return self.marathon_member.name
+        return self.marathon_member.first_name
 
     class Meta:
         verbose_name = "Временная отметка"

@@ -1,4 +1,4 @@
-from .update_merathon_member_statistic import dp
+from .moderators import dp
 
 
 __all__ = ["dp"]

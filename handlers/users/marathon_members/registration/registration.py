@@ -92,7 +92,7 @@ async def finish_registration(user_id, username, state):
         telegram_id=user_id,
         username=username,
         first_name=state_data.get('first_name').capitalize(),
-        last_name=state_data.get('last_name'),
+        last_name=state_data.get('last_name').capitalize(),
         phone=state_data.get('phone'),
         msk_timedelta=state_data.get('msk_timedelta'),
         wakeup_time=state_data.get('wakeup_time')

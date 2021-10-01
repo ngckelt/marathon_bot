@@ -8,11 +8,10 @@ from utils.db_api.db import MarathonMembersModel, TimestampsModel, \
 from loader import bot
 from datetime import datetime
 
-from .utils import set_timestamp, times_equal
+from utils.timestamps_manage.utils import *
 
 from keyboards.inline.moderators import update_marathon_member_statistic_markup
 import time
-from .utils import *
 
 CONTINUE_FUNNEL_AFTER_HALF_AN_HOUR = "👋 Чтобы продолжить наше общение - нажми одну из кнопок. " \
                                      "Возможно ты сейчас занят. Как освободишься, давай продолжим 🤗. " \
