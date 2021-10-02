@@ -2,6 +2,16 @@ from admin.adminbot.models import *
 from asgiref.sync import sync_to_async
 
 
+def decorate_each_method(decorator):
+    def decorate(cls):
+        for attr in cls.__bases__[0].__dict__:
+            if callable(getattr(cls, attr)) and not attr.startswith('_'):
+                setattr(cls, attr, decorator(getattr(cls, attr)))
+        return cls
+
+    return decorate
+
+
 class MarathonMembersModel:
 
     @staticmethod
@@ -21,6 +31,11 @@ class MarathonMembersModel:
     @sync_to_async
     def get_marathon_member(telegram_id):
         return MarathonMembers.objects.filter(telegram_id=telegram_id).first()
+
+    @staticmethod
+    @sync_to_async
+    def get_marathon_member_by_pk(pk):
+        return MarathonMembers.objects.filter(pk=pk).first()
 
     @staticmethod
     @sync_to_async
@@ -89,24 +104,30 @@ class OutOfMarathonUsersModel:
     @staticmethod
     @sync_to_async
     def delete_out_of_marathon_user(marathon_member):
-        OutOfMarathonUsers.objects.create(marathon_member=marathon_member)
+        OutOfMarathonUsers.objects.filter(marathon_member=marathon_member).delete()
 
 
 class TimestampsModel:
 
     @staticmethod
     @sync_to_async
-    def add_timestamp(marathon_member, first_timestamp, last_timestamp):
+    def add_timestamp(marathon_member, first_timestamp, last_timestamp, date):
         Timestamps.objects.create(
             marathon_member=marathon_member,
             first_timestamp=first_timestamp,
-            last_timestamp=last_timestamp
+            last_timestamp=last_timestamp,
+            date=date
         )
 
     @staticmethod
     @sync_to_async
-    def get_timestamp(marathon_member):
-        return Timestamps.objects.filter(marathon_member=marathon_member).first()
+    def get_timestamp(marathon_member, date=None):
+        return Timestamps.objects.filter(marathon_member=marathon_member, date=date).first()
+
+    @staticmethod
+    @sync_to_async
+    def get_timestamps_by_filters(marathon_member, **filters):
+        return Timestamps.objects.filter(**filters)
 
     @staticmethod
     @sync_to_async
@@ -125,4 +146,3 @@ class ReviewsModel:
     @sync_to_async
     def get_reviews():
         return Reviews.objects.all()
-

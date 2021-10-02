@@ -1,4 +1,5 @@
 from django.db import models
+from data.config import DEFAULT_USERNAME
 
 
 class TimeBasedModel(models.Model):
@@ -11,10 +12,10 @@ class TimeBasedModel(models.Model):
 
 class Users(TimeBasedModel):
     telegram_id = models.CharField(verbose_name="ID в телеграмме", max_length=30)
-    username = models.CharField(verbose_name="Юзернейм в телеграмме", default="Отсутствует", max_length=30)
+    username = models.CharField(verbose_name="Юзернейм в телеграмме", default=DEFAULT_USERNAME, max_length=30)
 
     def __str__(self):
-        if self.username != "Отсутствует":
+        if self.username != DEFAULT_USERNAME:
             return self.username
         return self.telegram_id
 
@@ -31,6 +32,11 @@ class MarathonMembers(Users):
     marathon_day = models.PositiveIntegerField(verbose_name="День марафона", default=1)
     failed_days = models.PositiveIntegerField(verbose_name="Дней пропущено", default=0)
     on_marathon = models.BooleanField(verbose_name="Участвует в марафоне", default=True)
+
+    def __str__(self):
+        if self.username != DEFAULT_USERNAME:
+            return self.username
+        return self.phone
 
     class Meta:
         verbose_name = "Участник марафона"
@@ -53,6 +59,7 @@ class OutOfMarathonUsers(TimeBasedModel):
                                         on_delete=models.CASCADE)
 
     def delete(self, *args, **kwargs):
+        print("\n\ndelete user\n\n")
         MarathonMembers.objects.filter(telegram_id=self.marathon_member.telegram_id).update(
             on_marathon=True,
             failed_days=0
@@ -75,8 +82,10 @@ class Timestamps(TimeBasedModel):
     marathon_member = models.ForeignKey(MarathonMembers, verbose_name="Участник марафона", on_delete=models.CASCADE)
     first_timestamp = models.PositiveBigIntegerField(verbose_name="Дедлайн первой отметки в милисекундах")
     last_timestamp = models.PositiveBigIntegerField(verbose_name="Дедлайн второй отметки в млмсекундах")
-    first_timestamp_success = models.BooleanField(verbose_name="Статус первой отметки", default=False)
-    last_timestamp_success = models.BooleanField(verbose_name="Статус втрой отметки", default=False)
+    first_timestamp_success = models.BooleanField(verbose_name="Сдан первый отчет", default=False)
+    last_timestamp_success = models.BooleanField(verbose_name="Сдан второй отчет", default=False)
+    date = models.CharField(verbose_name="Дата", max_length=30)
+    completed = models.BooleanField(verbose_name="Завершено", default=False)
 
     def __str__(self):
         return self.marathon_member.first_name
@@ -89,7 +98,6 @@ class Timestamps(TimeBasedModel):
 class Reviews(TimeBasedModel):
     photo_id = models.CharField(verbose_name="ID фотографии", max_length=255, blank=True)
     video_id = models.CharField(verbose_name="ID видео", max_length=255, blank=True)
-    # file = models.FileField(verbose_name="Файл", upload_to='files/', blank=True)
 
     def __str__(self):
         return f"Отзыв номер {self.pk}"

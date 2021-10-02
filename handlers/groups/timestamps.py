@@ -1,4 +1,5 @@
 import time
+from datetime import datetime
 
 from aiogram import types
 
@@ -22,7 +23,7 @@ from utils.timestamps_manage.utils import MAX_FAILED_DAYS
 async def catch_video_note(message: types.Message):
     marathon_member = await MarathonMembersModel.get_marathon_member(message.from_user.id)
     if marathon_member is not None:
-        timestamp = await TimestampsModel.get_timestamp(marathon_member)
+        timestamp = await TimestampsModel.get_timestamp(marathon_member, datetime.now().strftime("%d.%m.%Y"))
         if timestamp is not None:
             current_time = time.time()
             # Видеосообщение вовремя
@@ -40,7 +41,8 @@ async def catch_video_note(message: types.Message):
                 if marathon_member.failed_days + 1 == MAX_FAILED_DAYS:
                     await message.reply(f"Это действие должно быть выполнено до {marathon_member.wakeup_time}. "
                                         f"Это уже 3й пропуск. Ты обнулился")
-                    await notify_moderator_about_kick_marathon_member(marathon_member, message.chat.id)
+                    print("*"*30, '\n', message.chat.id, '\n', "*"*30)
+                    await notify_moderator_about_kick_marathon_member(marathon_member)
                     await update_marathon_member(marathon_member, failed_days=MAX_FAILED_DAYS, on_marathon=False)
                 else:
                     await message.reply("Это действие должно быть выполнено до None. У вас пропуск. Всего возможно 3 "
@@ -52,26 +54,29 @@ async def catch_video_note(message: types.Message):
 
 @dp.message_handler(GroupOnly())
 async def catch_message(message: types.Message):
-    await message.reply("Я вижу сообщение")
     marathon_member = await MarathonMembersModel.get_marathon_member(message.from_user.id)
     if marathon_member is not None:
-        timestamp = await TimestampsModel.get_timestamp(marathon_member)
+        timestamp = await TimestampsModel.get_timestamp(marathon_member, datetime.now().strftime("%d.%m.%Y"))
         if timestamp is not None:
             current_time = time.time()
             # Текстовое соощение вовремя
-            if timestamp.last_timestamp - time.time() > 0:
-                # Если видеосообщение было прислано вовремя
-                if timestamp.first_timestamp_success:
-                    marathon_day = marathon_member.marathon_day + 1
-                    await update_marathon_member(marathon_member, marathon_day=marathon_day)
-                    await notify_marathon_member_about_success_last_timestamp(marathon_member)
-                    await message.reply("День засчитан! Жду тебя завтра ✨")
-                    await update_timestamp(marathon_member, last_timestamp_success=True)
-                # Если опоздал с видеосообщением
+            if timestamp.last_timestamp - current_time > 0:
+                if current_time > timestamp.first_timestamp:
+                    # Если видеосообщение было прислано вовремя
+                    if timestamp.first_timestamp_success:
+                        marathon_day = marathon_member.marathon_day + 1
+                        await update_marathon_member(marathon_member, marathon_day=marathon_day)
+                        await notify_marathon_member_about_success_last_timestamp(marathon_member)
+                        await message.reply("День засчитан! Жду тебя завтра ✨")
+                        await update_timestamp(marathon_member, last_timestamp_success=True, completed=True)
+                    # Если опоздал с видеосообщением
+                    else:
+                        await message.reply("Опоздал с видеосообщением")
+                        await notify_marathon_member_about_fail_day(marathon_member)
                 else:
-                    await message.reply("Опоздал с видеосообщением")
-                    await notify_marathon_member_about_fail_day(marathon_member)
-
+                    await message.reply("Слишком рано")
             else:
                 await message.reply("Опоздал")
+
+
 

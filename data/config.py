@@ -10,3 +10,11 @@ ADMINS = env.list("ADMINS")  # Тут у нас будет список из а�
 
 AVAILABLE_WAKEUP_TIMESTAMPS = ("5-00", "5-30", "6-00")
 
+DEFAULT_USERNAME = "Отсутствует"
+BASE_SLEEP_SECONDS = 1
+
+
+GROUP_ID = -1001585245472
+
+CHECK_TIMESTAMPS_INTERVAL = 10
+

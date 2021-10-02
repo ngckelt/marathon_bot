@@ -1,3 +1,4 @@
+from .group_admin import dp
 from .timestamps import dp
 
 

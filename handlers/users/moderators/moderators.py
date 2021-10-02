@@ -1,14 +1,17 @@
 from pprint import pprint
-
+import json
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.utils.exceptions import ChatNotFound
 
+from data.config import GROUP_ID
 from keyboards.inline.moderators import update_marathon_member_statistic_markup,\
     update_marathon_member_statistic_callback, kick_marathon_member_callback
 
 from utils.timestamps_manage.timestamps_manage import update_marathon_member, \
     notify_marathon_member_about_success_last_timestamp
+
+from utils.db_api.db import OutOfMarathonUsersModel
 
 from loader import dp
 from loader import bot
@@ -36,9 +39,6 @@ async def update_marathon_member_statistic(callback: types.CallbackQuery, callba
                 chat_id=marathon_member.telegram_id,
                 text="День засчитан, несмотря на недоразумение! Челлендж продолжается. Жду тебя завтра"
             )
-
-            # Возможно это нужно будет добавить
-            # await notify_marathon_member_about_success_last_timestamp(marathon_member)
         except:
             ...
     else:
@@ -60,16 +60,22 @@ async def kick_marathon_member(callback: types.CallbackQuery, callback_data: dic
     text += '\n✅ Обработано: '
     marathon_member_telegram_id = callback_data.get('member_telegram_id')
     accept = callback_data.get('accept')
-    group_id = callback_data.get('group_id')
+    text = callback.message.text
+    text += '\n✅ Обработано: '
 
+    marathon_member = await MarathonMembersModel.get_marathon_member(marathon_member_telegram_id)
     if accept == 'False':
-        marathon_member = await MarathonMembersModel.get_marathon_member(marathon_member_telegram_id)
+        text += "Не ачтено"
+        # Удалить из чата и отправить пользователю уведомление
         kick_message = f"Привет, {marathon_member.first_name} {marathon_member.last_name}! " \
                        f"Что-то пошло не так - ты обнулился и выпал из чата ранних подъёмов. " \
                        "Нам очень жаль! Ведь ты не прошел челленж до конца. Предлагаю связаться с ментором " \
                        "[имя и ссылка на юзернейм] и обсудить твоё возвращение к единомышленникам."
         try:
-            await bot.kick_chat_member(group_id, marathon_member_telegram_id)
+            with open('utils/group_id.json') as f:
+                data = json.loads(f.read())
+                group_id = data.get('group_id')
+            # await bot.kick_chat_member(group_id, marathon_member_telegram_id)
         except Exception as e:
             print(e)
             pprint(e.__dict__)
@@ -83,5 +89,14 @@ async def kick_marathon_member(callback: types.CallbackQuery, callback_data: dic
         except:
             ...
     else:
-        ...
+        text += "Зачтено"
+        # Восстановить пользователя
+        await OutOfMarathonUsersModel.delete_out_of_marathon_user(marathon_member=marathon_member)
+        await update_marathon_member(marathon_member, on_marathon=True, failed_days=0)
+
+    await callback.message.edit_text(text, reply_markup=None)
+
+
+
+
 
