@@ -59,7 +59,6 @@ class OutOfMarathonUsers(TimeBasedModel):
                                         on_delete=models.CASCADE)
 
     def delete(self, *args, **kwargs):
-        print("\n\ndelete user\n\n")
         MarathonMembers.objects.filter(telegram_id=self.marathon_member.telegram_id).update(
             on_marathon=True,
             failed_days=0
@@ -82,8 +81,9 @@ class Timestamps(TimeBasedModel):
     marathon_member = models.ForeignKey(MarathonMembers, verbose_name="Участник марафона", on_delete=models.CASCADE)
     first_timestamp = models.PositiveBigIntegerField(verbose_name="Дедлайн первой отметки в милисекундах")
     last_timestamp = models.PositiveBigIntegerField(verbose_name="Дедлайн второй отметки в млмсекундах")
-    first_timestamp_success = models.BooleanField(verbose_name="Сдан первый отчет", default=False)
-    last_timestamp_success = models.BooleanField(verbose_name="Сдан второй отчет", default=False)
+    first_timestamp_success = models.BooleanField(verbose_name="Вовремя сдан первый отчет", default=False)
+    last_timestamp_success = models.BooleanField(verbose_name="Вовремя сдан второй отчет", default=False)
+    report_later = models.BooleanField(verbose_name="Отправил отчеты, но с опозданием", default=False)
     date = models.CharField(verbose_name="Дата", max_length=30)
     completed = models.BooleanField(verbose_name="Завершено", default=False)
 

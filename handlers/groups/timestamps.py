@@ -13,18 +13,22 @@ from utils.motivational_phrases.phrases import get_motivational_phrase_by_marath
 
 from utils.timestamps_manage.timestamps_manage import notify_marathon_member_about_success_first_timestamp, \
     update_timestamp, notify_marathon_member_about_fail_first_timestamp, notify_moderator_about_failed_timestamp, \
-    update_marathon_member, notify_marathon_member_about_success_last_timestamp, notify_marathon_member_about_fail_day,\
-    get_second_timestamp_deadline_time, notify_moderator_about_kick_marathon_member
+    update_marathon_member, notify_marathon_member_about_success_last_timestamp, notify_marathon_member_about_fail_day, \
+    get_second_timestamp_deadline_time, notify_moderator_about_kick_marathon_member, get_first_timestamp_deadline_time
 
 from utils.timestamps_manage.utils import MAX_FAILED_DAYS
 
 
 @dp.message_handler(GroupOnly(), content_types=types.ContentTypes.VIDEO_NOTE)
 async def catch_video_note(message: types.Message):
+    print("test123")
     marathon_member = await MarathonMembersModel.get_marathon_member(message.from_user.id)
+    print("mm")
     if marathon_member is not None:
+        print(datetime.now().strftime("%d.%m.%Y"))
         timestamp = await TimestampsModel.get_timestamp(marathon_member, datetime.now().strftime("%d.%m.%Y"))
         if timestamp is not None:
+            print("qweqweqw")
             current_time = time.time()
             # Видеосообщение вовремя
             if timestamp.first_timestamp - current_time > 0:
@@ -38,17 +42,18 @@ async def catch_video_note(message: types.Message):
                     await message.reply(text=message_text)
             # Опоздал видеосообщение
             elif timestamp.first_timestamp - current_time < 0:
+                # Если это 3й пропуск
                 if marathon_member.failed_days + 1 == MAX_FAILED_DAYS:
                     await message.reply(f"Это действие должно быть выполнено до {marathon_member.wakeup_time}. "
                                         f"Это уже 3й пропуск. Ты обнулился")
-                    print("*"*30, '\n', message.chat.id, '\n', "*"*30)
                     await notify_moderator_about_kick_marathon_member(marathon_member)
                     await update_marathon_member(marathon_member, failed_days=MAX_FAILED_DAYS, on_marathon=False)
                 else:
-                    await message.reply("Это действие должно быть выполнено до None. У вас пропуск. Всего возможно 3 "
-                                        "пропуска. Сейчас вы можете дальше продолжить челленж")
+                    await message.reply(f"Это действие должно быть выполнено до "
+                                        f"{get_first_timestamp_deadline_time(marathon_member.wakeup_time)}. "
+                                        f"У вас пропуск. Всего возможно 3 пропуска. Сейчас вы можете дальше "
+                                        f"продолжить челленж")
                     await update_marathon_member(marathon_member, failed_days=marathon_member.failed_days + 1)
-                    # await notify_marathon_member_about_fail_first_timestamp(marathon_member)
                     await notify_moderator_about_failed_timestamp(marathon_member)
 
 
@@ -71,12 +76,12 @@ async def catch_message(message: types.Message):
                         await update_timestamp(marathon_member, last_timestamp_success=True, completed=True)
                     # Если опоздал с видеосообщением
                     else:
-                        await message.reply("Опоздал с видеосообщением")
+                        # await message.reply("Опоздал с видеосообщением")
                         await notify_marathon_member_about_fail_day(marathon_member)
                 else:
-                    await message.reply("Слишком рано")
+                    ...
+                    # await message.reply("Слишком рано")
             else:
-                await message.reply("Опоздал")
-
-
-
+                if not timestamp.report_later:
+                    await TimestampsModel.update_timestamp(marathon_member, report_later=True)
+                # await message.reply("Опоздал")

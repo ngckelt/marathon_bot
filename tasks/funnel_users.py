@@ -23,11 +23,9 @@ CONTINUE_FUNNEL_AFTER_DAY = "Привет! 👋 Мы с тобой вчера н
                             "И уже сегодня ты сможешь познакомится с ментором и вступить в чат, " \
                             "где попробуешь первые 3 дня челленджа! 👍"
 
-
 CONTINUE_REGISTRATION_AFTER_HALF_AN_HOUR = "Ты так и не ответил 👋. Возможно ты сейчас занят. Я подожду. Как будешь " \
                                            "готов - давай знакомится! И после этого тебе придёт ссылка на челлендж и с " \
                                            "тобой свяжется ментор"
-
 
 CONTINUE_REGISTRATION_AFTER_DAY = "Привет! Мы так и не дождались твоего ответа 🙁." \
                                   "Напоминаем о себе. Ты всё ещё хочешь присоединиться к челленджу и попробовать " \
@@ -54,11 +52,13 @@ async def check_funnel_users():
     )
     for user in funnel_users:
         # Если прорустил сутки
-        if current_time - user.last_update_time in range(DAY_IN_SEC - 5, DAY_IN_SEC + 5):
+        if int(current_time - user.last_update_time) in range(DAY_IN_SEC - MIN_IN_SEC // 2, DAY_IN_SEC +
+                                                                                            MIN_IN_SEC // 2):
             await remind_user(user, CONTINUE_FUNNEL_AFTER_DAY)
 
         # Если молчит 30 минут
-        elif current_time - user.last_update_time in range(HALF_AN_HOUR_IN_SEC - 5, HALF_AN_HOUR_IN_SEC + 5):
+        elif int(current_time - user.last_update_time) in range(HALF_AN_HOUR_IN_SEC - MIN_IN_SEC // 2,
+                                                                HALF_AN_HOUR_IN_SEC + MIN_IN_SEC // 2):
             await remind_user(user, CONTINUE_FUNNEL_AFTER_HALF_AN_HOUR)
 
 
@@ -70,9 +70,11 @@ async def check_on_registration_funnel_users():
     )
     for user in funnel_users:
         # Если прорустил сутки
-        if current_time - user.last_update_time in range(DAY_IN_SEC - 5, DAY_IN_SEC + 5):
+        if int(current_time - user.last_update_time) in range(DAY_IN_SEC - MIN_IN_SEC // 2, DAY_IN_SEC +
+                                                                                            MIN_IN_SEC // 2):
             await remind_user(user, CONTINUE_REGISTRATION_AFTER_DAY)
 
         # Если молчит 30 минут
-        elif current_time - user.last_update_time in range(HALF_AN_HOUR_IN_SEC - 5, HALF_AN_HOUR_IN_SEC + 5):
+        elif int(current_time - user.last_update_time) in range(HALF_AN_HOUR_IN_SEC - MIN_IN_SEC // 2,
+                                                                HALF_AN_HOUR_IN_SEC +MIN_IN_SEC // 2):
             await remind_user(user, CONTINUE_REGISTRATION_AFTER_HALF_AN_HOUR)

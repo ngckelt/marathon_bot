@@ -100,7 +100,6 @@ async def notify_moderator_about_kick_marathon_member(marathon_member):
 
 
 async def check_timestamps():
-    print("Проверка таймстемпов")
     timestamps = await TimestampsModel.get_timestamps_by_filters(datetime.now().strftime("%d.%m.%Y"), completed=False)
     for timestamp in timestamps:
         # Если прошло 70 минут с момента

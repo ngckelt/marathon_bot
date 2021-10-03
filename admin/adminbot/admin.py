@@ -31,7 +31,7 @@ class ModeratorsAdmin(admin.ModelAdmin):
 @admin.register(models.Timestamps)
 class TimestampsAdmin(admin.ModelAdmin):
     list_display = ['marathon_member', 'first_timestamp_success',
-                    'last_timestamp_success', 'completed', 'date']
+                    'last_timestamp_success', 'report_later', 'completed', 'date']
     search_fields = ['marathon_member__phone', 'marathon_member__username', 'date']
     list_filter = ['completed']
 
