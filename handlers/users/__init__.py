@@ -1,5 +1,6 @@
 # from .registration import dp
 # from .start import dp
+from .cancel import dp
 from .admin import dp
 from .moderators import dp
 from .funnel_users import dp

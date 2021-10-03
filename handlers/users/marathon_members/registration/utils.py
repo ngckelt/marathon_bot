@@ -1,4 +1,7 @@
+from loader import bot
 from re import findall
+
+from utils.db_api.db import ModeratorsModel
 
 
 def only_cyrillic(string: str) -> bool:
@@ -16,6 +19,18 @@ def correct_msk_timedelta(msk_timedelta: str) -> bool:
         return False
 
 
-def correct_full_name(text):
-    ...
+async def notify_moderator_about_new_marathon_member(first_name, last_name, username, phone):
+    moderator = await ModeratorsModel.get_moderator()
+    message = f"{first_name} {last_name} зарегистрировался на марафон\n" \
+              f"Контактная информация:\n" \
+              f"Юзернейм: {username}\n" \
+              f"Телефон: {phone}"
+    try:
+        await bot.send_message(
+            chat_id=moderator.telegram_id,
+            text=message
+        )
+    except:
+        ...
+
 

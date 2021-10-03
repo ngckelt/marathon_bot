@@ -10,7 +10,7 @@ from keyboards.default.marathon_members.main_markup import main_markup
 from keyboards.default.marathon_members.registration_markups import request_contact_markup
 
 from utils.db_api.db import MarathonMembersModel, FunnelUsersModel
-from .utils import correct_msk_timedelta, correct_full_name, only_cyrillic
+from .utils import correct_msk_timedelta, only_cyrillic, notify_moderator_about_new_marathon_member
 
 
 @dp.message_handler(text="Попробовать 3 дня челленджа")
@@ -102,6 +102,12 @@ async def finish_registration(user_id, username, state):
         started_marathon=True,
         on_marathon_registration=False
     )
+    await notify_moderator_about_new_marathon_member(
+        first_name=state_data.get('first_name').capitalize(),
+        last_name=state_data.get('last_name').capitalize(),
+        username=username if username is not None else "Отсутствует",
+        phone=state_data.get('phone')
+    )
 
 
 @dp.callback_query_handler(yes_or_no_callback.filter(action='is_msk'), state=RegisterMarathonMember.is_msk)
@@ -146,8 +152,10 @@ async def get_phone_error(message: types.Message, ):
     await message.answer("Пожелуйста, воспользуйся кнопкой ниже, чтобы отправить свой номер телефона")
 
 
-@dp.message_handler(state=[RegisterMarathonMember.get_wakeup_time,
-                           RegisterMarathonMember.is_msk,
-                           ])
+@dp.message_handler(state=[
+    RegisterMarathonMember.get_wakeup_time,
+    RegisterMarathonMember.is_msk,
+   ]
+)
 async def error(message: types.Message):
     await message.answer("Пожалуйста, выбери один из вариентов ответа")

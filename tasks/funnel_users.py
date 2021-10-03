@@ -47,23 +47,18 @@ async def remind_user(funnel_user, message):
 
 
 async def check_funnel_users():
-    print("Проверка началась")
     current_time = time.time()
     funnel_users = await FunnelUsersModel.get_funnel_users_by_filters(
         on_marathon_registration=False,
         started_marathon=False
     )
     for user in funnel_users:
-        print("Найден пользователь")
         # Если прорустил сутки
-        print(f"curtime = {current_time}, last_time = {user.last_update_time}")
-        if current_time - user.last_update_time >= DAY_IN_SEC:
-            print("Пропустил сутки")
+        if current_time - user.last_update_time in range(DAY_IN_SEC - 5, DAY_IN_SEC + 5):
             await remind_user(user, CONTINUE_FUNNEL_AFTER_DAY)
 
         # Если молчит 30 минут
-        elif current_time - user.last_update_time >= HALF_AN_HOUR_IN_SEC:
-            print("Пропустил пол часа")
+        elif current_time - user.last_update_time in range(HALF_AN_HOUR_IN_SEC - 5, HALF_AN_HOUR_IN_SEC + 5):
             await remind_user(user, CONTINUE_FUNNEL_AFTER_HALF_AN_HOUR)
 
 
@@ -74,14 +69,10 @@ async def check_on_registration_funnel_users():
         started_marathon=False
     )
     for user in funnel_users:
-        print("Найден пользователь (регистрация)")
         # Если прорустил сутки
-        print(f"curtime = {current_time}, last_time = {user.last_update_time} (регистрация)")
-        if current_time - user.last_update_time >= DAY_IN_SEC:
-            print("Пропустил сутки (регистрация)")
+        if current_time - user.last_update_time in range(DAY_IN_SEC - 5, DAY_IN_SEC + 5):
             await remind_user(user, CONTINUE_REGISTRATION_AFTER_DAY)
 
         # Если молчит 30 минут
-        elif current_time - user.last_update_time >= HALF_AN_HOUR_IN_SEC:
-            print("Пропустил пол часа (регистрация)")
+        elif current_time - user.last_update_time in range(HALF_AN_HOUR_IN_SEC - 5, HALF_AN_HOUR_IN_SEC + 5):
             await remind_user(user, CONTINUE_REGISTRATION_AFTER_HALF_AN_HOUR)
