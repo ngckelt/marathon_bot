@@ -126,6 +126,16 @@ class TimestampsModel:
 
     @staticmethod
     @sync_to_async
+    def get_timestamp_by_pk(timestamp_pk):
+        return Timestamps.objects.filter(pk=timestamp_pk).first()
+
+    @staticmethod
+    @sync_to_async
+    def update_timestamp_by_pk(timestamp_pk, **update_data):
+        return Timestamps.objects.filter(pk=timestamp_pk).update(**update_data)
+
+    @staticmethod
+    @sync_to_async
     def get_timestamps_by_filters(marathon_member, **filters):
         return Timestamps.objects.filter(**filters)
 

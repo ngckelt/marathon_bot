@@ -282,17 +282,19 @@ async def about_author_message(message: types.Message, state: FSMContext):
 async def about_author_message(message: types.Message, state: FSMContext):
     await update_funnel_user(message)
     reviews = await ReviewsModel.get_reviews()
+    chunked_reviews = [reviews[d:d + 10] for d in range(0, len(reviews), 10)]
 
-    album = types.MediaGroup()
-    for review in reviews:
-        if review.photo_id:
-            album.attach_photo(review.photo_id)
-        elif review.video_id:
-            album.attach_video(review.video_id)
+    for reviews in chunked_reviews:
+        album = types.MediaGroup()
+        for review in reviews:
+            if review.photo_id:
+                album.attach_photo(review.photo_id)
+            elif review.video_id:
+                album.attach_video(review.video_id)
 
-    await message.answer_media_group(
-        media=album,
-    )
+        await message.answer_media_group(
+            media=album,
+        )
 
     await state.finish()
 
