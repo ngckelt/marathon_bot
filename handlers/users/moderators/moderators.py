@@ -1,17 +1,10 @@
 from pprint import pprint
 import json
 from aiogram import types
-from aiogram.dispatcher import FSMContext
-from aiogram.utils.exceptions import ChatNotFound
+from keyboards.inline.moderators import update_marathon_member_statistic_callback, kick_marathon_member_callback
 
-from data.config import GROUP_ID
-from keyboards.inline.moderators import update_marathon_member_statistic_markup,\
-    update_marathon_member_statistic_callback, kick_marathon_member_callback
-
-from utils.timestamps_manage.timestamps_manage import update_marathon_member, \
-    notify_marathon_member_about_success_last_timestamp
-
-from utils.db_api.db import OutOfMarathonUsersModel
+from utils.timestamps_manage.timestamps_manage import update_marathon_member
+from utils.db_api.db import OutOfMarathonUsersModel, ModeratorsModel
 
 from loader import dp
 from loader import bot
@@ -67,15 +60,16 @@ async def kick_marathon_member(callback: types.CallbackQuery, callback_data: dic
     if accept == 'False':
         text += "Не ачтено"
         # Удалить из чата и отправить пользователю уведомление
+        moderator = await ModeratorsModel.get_moderator()
         kick_message = f"Привет, {marathon_member.first_name} {marathon_member.last_name}! " \
                        f"Что-то пошло не так - ты обнулился и выпал из чата ранних подъёмов. " \
                        "Нам очень жаль! Ведь ты не прошел челленж до конца. Предлагаю связаться с ментором " \
-                       "[имя и ссылка на юзернейм] и обсудить твоё возвращение к единомышленникам."
+                       f"{moderator.name} {moderator.username} и обсудить твоё возвращение к единомышленникам."
         try:
             with open('utils/group_id.json') as f:
                 data = json.loads(f.read())
                 group_id = data.get('group_id')
-            # await bot.kick_chat_member(group_id, marathon_member_telegram_id)
+            await bot.kick_chat_member(group_id, marathon_member_telegram_id)
         except Exception as e:
             print(e)
             pprint(e.__dict__)

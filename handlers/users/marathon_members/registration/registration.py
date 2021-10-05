@@ -139,7 +139,7 @@ async def get_msk_timedelta(message: types.Message, state: FSMContext):
         await finish_registration(message.from_user.id, message.from_user.username, state)
         await message.answer(
             text="В ближайшие несколько часов с тобой свяжется ментор челленджа и подробнее расскажет как у нас всё "
-                 "устроено. А пока лови ссылку на чат https://t.me/joinchat/xAFToWYMS4xlOWRi. \nПрисоединяйся ❤️",
+                 "устроено. А пока лови ссылку на чат https://t.me/joinchat/Bb21nyN9t9wzYzFi. \nПрисоединяйся ❤️",
             reply_markup=main_markup
         )
         await state.finish()

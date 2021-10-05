@@ -71,6 +71,7 @@ class OutOfMarathonUsers(TimeBasedModel):
 
 
 class Moderators(Users):
+    name = models.CharField(verbose_name="Имя", max_length=255)
 
     class Meta:
         verbose_name = "Модератор"

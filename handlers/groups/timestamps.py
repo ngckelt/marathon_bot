@@ -2,14 +2,10 @@ import time
 from datetime import datetime
 
 from aiogram import types
-
-from keyboards.inline.moderators import update_marathon_member_statistic_markup
-from loader import dp, bot
+from loader import dp
 
 from filters.group_chat import GroupOnly
-from utils.db_api.db import MarathonMembersModel, TimestampsModel, ModeratorsModel
-from .utils import seconds_to_time, get_message_text_by_marathon_day
-from utils.motivational_phrases.phrases import get_motivational_phrase_by_marathon_day
+from utils.db_api.db import MarathonMembersModel, TimestampsModel
 
 from utils.timestamps_manage.timestamps_manage import notify_marathon_member_about_success_first_timestamp, \
     update_timestamp, notify_marathon_member_about_fail_first_timestamp, notify_moderator_about_failed_timestamp, \
@@ -21,14 +17,10 @@ from utils.timestamps_manage.utils import MAX_FAILED_DAYS
 
 @dp.message_handler(GroupOnly(), content_types=types.ContentTypes.VIDEO_NOTE)
 async def catch_video_note(message: types.Message):
-    print("test123")
     marathon_member = await MarathonMembersModel.get_marathon_member(message.from_user.id)
-    print("mm")
     if marathon_member is not None:
-        print(datetime.now().strftime("%d.%m.%Y"))
         timestamp = await TimestampsModel.get_timestamp(marathon_member, datetime.now().strftime("%d.%m.%Y"))
         if timestamp is not None:
-            print("qweqweqw")
             current_time = time.time()
             # Видеосообщение вовремя
             if timestamp.first_timestamp - current_time > 0:

@@ -1,15 +1,13 @@
 from aiogram import types
 from aiogram.dispatcher.filters import BoundFilter
-from environs import Env
-
-env = Env()
-env.read_env()
+from utils.db_api.db import ModeratorsModel
 
 
 class AdminOnly(BoundFilter):
 
     async def check(self, message: types.Message) -> bool:
-        return str(message.from_user.id) in env.str("ADMINS").split()
+        moderator = await ModeratorsModel.get_moderator()
+        return str(message.from_user.id) == moderator.telegram_id
 
 
 

@@ -1,16 +1,11 @@
 import time
-from pprint import pprint
-
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.builtin import CommandStart
 
 from loader import dp
-
-from keyboards.default.funnel_users import funnel_users_markups
 from keyboards.default.funnel_users.funnel_users_markups import create_markup
 from keyboards.inline.funnel_users import funnel_users_markups as inline_funnel_users_markups
-from keyboards.inline.paginator import Paginator, pagination_callback
 
 from utils.db_api.db import FunnelUsersModel, ReviewsModel, MarathonMembersModel
 
@@ -299,53 +294,5 @@ async def about_author_message(message: types.Message, state: FSMContext):
         media=album,
     )
 
-    markup = Paginator('paginator', 'reviews').create_markup(
-        max_items=len(reviews),
-    )
-    review = reviews[0]
-    if review.photo_id:
-        await message.answer_photo(
-            photo=review.photo_id,
-            reply_markup=markup
-        )
-    elif review.video_id:
-        await message.answer_video(
-            video=review.video_id,
-            reply_markup=markup
-        )
-
     await state.finish()
-
-
-@dp.callback_query_handler(pagination_callback.filter(key='reviews', page='curr_page'))
-async def curr_page(callback: types.CallbackQuery):
-    await callback.answer(cache_time=60)
-
-
-@dp.callback_query_handler(pagination_callback.filter(key='reviews'))
-async def show_chosen_article(callback: types.CallbackQuery, callback_data: dict):
-    await callback.answer()
-    current_page = int(callback_data.get('page'))
-    reviews = await ReviewsModel.get_reviews()
-    review = reviews[current_page-1]
-
-    markup = Paginator('paginator', 'reviews').create_markup(
-        max_items=len(reviews),
-        curr_page=current_page,
-    )
-
-    if review.photo_id:
-        await callback.message.answer_photo(
-            photo=review.photo_id,
-            reply_markup=markup,
-        )
-    elif review.video_id:
-        await callback.message.answer_video(
-            video=review.video_id,
-            reply_markup=markup,
-        )
-
-    await callback.message.delete()
-
-
 
