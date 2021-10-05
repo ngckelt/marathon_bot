@@ -76,5 +76,5 @@ async def check_on_registration_funnel_users():
 
         # Если молчит 30 минут
         elif int(current_time - user.last_update_time) in range(HALF_AN_HOUR_IN_SEC - MIN_IN_SEC // 2,
-                                                                HALF_AN_HOUR_IN_SEC +MIN_IN_SEC // 2):
+                                                                HALF_AN_HOUR_IN_SEC + MIN_IN_SEC // 2):
             await remind_user(user, CONTINUE_REGISTRATION_AFTER_HALF_AN_HOUR)

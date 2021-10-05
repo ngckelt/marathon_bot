@@ -86,6 +86,10 @@ async def update_timestamp(marathon_member, **update_data):
     await TimestampsModel.update_timestamp(marathon_member, **update_data)
 
 
+async def update_timestamp_by_pk(timestamp_pk, **update_data):
+    await TimestampsModel.update_timestamp_by_pk(timestamp_pk, **update_data)
+
+
 async def update_marathon_member(marathon_member, **update_data):
     await MarathonMembersModel.update_marathon_member(marathon_member.telegram_id, **update_data)
 

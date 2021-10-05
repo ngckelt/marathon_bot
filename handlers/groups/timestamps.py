@@ -10,7 +10,8 @@ from utils.db_api.db import MarathonMembersModel, TimestampsModel
 from utils.timestamps_manage.timestamps_manage import notify_marathon_member_about_success_first_timestamp, \
     update_timestamp, notify_marathon_member_about_fail_first_timestamp, notify_moderator_about_failed_timestamp, \
     update_marathon_member, notify_marathon_member_about_success_last_timestamp, notify_marathon_member_about_fail_day, \
-    get_second_timestamp_deadline_time, notify_moderator_about_kick_marathon_member, get_first_timestamp_deadline_time
+    get_second_timestamp_deadline_time, notify_moderator_about_kick_marathon_member, get_first_timestamp_deadline_time, \
+    update_timestamp_by_pk
 
 from utils.timestamps_manage.utils import MAX_FAILED_DAYS
 
@@ -26,7 +27,7 @@ async def catch_video_note(message: types.Message):
             if timestamp.first_timestamp - current_time > 0:
                 if not timestamp.first_timestamp_success:
                     await notify_marathon_member_about_success_first_timestamp(marathon_member)
-                    await update_timestamp(marathon_member, first_timestamp_success=True)
+                    await update_timestamp_by_pk(timestamp.pk, first_timestamp_success=True)
                     message_text = f"Доброе утро! День {marathon_member.marathon_day}/63. " \
                                    f"Чтобы день был засчитан - пришли " \
                                    f"текстовое сообщение, чем полезно было твоё утро, не позднее " \
@@ -65,7 +66,7 @@ async def catch_message(message: types.Message):
                         await update_marathon_member(marathon_member, marathon_day=marathon_day)
                         await notify_marathon_member_about_success_last_timestamp(marathon_member)
                         await message.reply("День засчитан! Жду тебя завтра ✨")
-                        await update_timestamp(marathon_member, last_timestamp_success=True, completed=True)
+                        await update_timestamp_by_pk(timestamp.pk, last_timestamp_success=True, completed=True)
                     # Если опоздал с видеосообщением
                     else:
                         # await message.reply("Опоздал с видеосообщением")
@@ -75,5 +76,5 @@ async def catch_message(message: types.Message):
                     # await message.reply("Слишком рано")
             else:
                 if not timestamp.report_later:
-                    await TimestampsModel.update_timestamp(marathon_member, report_later=True)
+                    await update_timestamp_by_pk(timestamp.pk, report_later=True)
                 # await message.reply("Опоздал")

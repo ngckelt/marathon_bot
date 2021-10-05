@@ -23,7 +23,7 @@ async def notify_moderator_about_new_marathon_member(first_name, last_name, user
     moderator = await ModeratorsModel.get_moderator()
     message = f"{first_name} {last_name} зарегистрировался на марафон\n" \
               f"Контактная информация:\n" \
-              f"Юзернейм: {username}\n" \
+              f"Юзернейм: @{username}\n" \
               f"Телефон: {phone}"
     try:
         await bot.send_message(
