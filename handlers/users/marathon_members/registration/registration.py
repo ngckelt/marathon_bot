@@ -6,7 +6,7 @@ from loader import dp
 from states.registration.registration import RegisterMarathonMember
 from keyboards.inline.wakeup_time_markup import wakeup_time_markup, wakeup_time_callback
 from keyboards.inline.yes_or_no_markup import yes_or_no_markup, yes_or_no_callback
-from keyboards.default.marathon_members.main_markup import main_markup
+from keyboards.default.marathon_members.start_marathon import start_marathon_markup
 from keyboards.default.marathon_members.registration_markups import request_contact_markup
 
 from utils.db_api.db import MarathonMembersModel, FunnelUsersModel
@@ -118,8 +118,9 @@ async def is_msk(callback: types.CallbackQuery, callback_data: dict, state: FSMC
         await state.update_data(msk_timedelta='0')
         await finish_registration(callback.from_user.id, callback.from_user.username, state)
         await callback.message.answer(
-            text="Регистрация успешно завершена! С завтрашнего дня Вам необходимо будет присылать отчеты",
-            reply_markup=main_markup
+            text="В ближайшие несколько часов с тобой свяжется ментор челленджа и подробнее расскажет как у нас всё "
+                 "устроено. А пока лови ссылку на чат https://t.me/joinchat/Bb21nyN9t9wzYzFi. \nПрисоединяйся ❤️",
+            reply_markup=start_marathon_markup
         )
         await state.finish()
     else:
@@ -140,7 +141,7 @@ async def get_msk_timedelta(message: types.Message, state: FSMContext):
         await message.answer(
             text="В ближайшие несколько часов с тобой свяжется ментор челленджа и подробнее расскажет как у нас всё "
                  "устроено. А пока лови ссылку на чат https://t.me/joinchat/Bb21nyN9t9wzYzFi. \nПрисоединяйся ❤️",
-            reply_markup=main_markup
+            reply_markup=start_marathon_markup
         )
         await state.finish()
     else:

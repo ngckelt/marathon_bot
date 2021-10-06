@@ -31,7 +31,7 @@ class MarathonMembers(Users):
     wakeup_time = models.CharField(verbose_name="Время подъема", max_length=10)
     marathon_day = models.PositiveIntegerField(verbose_name="День марафона", default=1)
     failed_days = models.PositiveIntegerField(verbose_name="Дней пропущено", default=0)
-    on_marathon = models.BooleanField(verbose_name="Участвует в марафоне", default=True)
+    on_marathon = models.BooleanField(verbose_name="Участвует в марафоне", default=False)
 
     def __str__(self):
         if self.username != DEFAULT_USERNAME:
@@ -80,8 +80,8 @@ class Moderators(Users):
 
 class Timestamps(TimeBasedModel):
     marathon_member = models.ForeignKey(MarathonMembers, verbose_name="Участник марафона", on_delete=models.CASCADE)
-    first_timestamp = models.PositiveBigIntegerField(verbose_name="Дедлайн первой отметки в милисекундах")
-    last_timestamp = models.PositiveBigIntegerField(verbose_name="Дедлайн второй отметки в млмсекундах")
+    first_timestamp = models.PositiveBigIntegerField(verbose_name="Дедлайн первой отметки в секундах")
+    last_timestamp = models.PositiveBigIntegerField(verbose_name="Дедлайн второй отметки в секундах")
     first_timestamp_success = models.BooleanField(verbose_name="Вовремя сдан первый отчет", default=False)
     last_timestamp_success = models.BooleanField(verbose_name="Вовремя сдан второй отчет", default=False)
     report_later = models.BooleanField(verbose_name="Отправил отчеты, но с опозданием", default=False)

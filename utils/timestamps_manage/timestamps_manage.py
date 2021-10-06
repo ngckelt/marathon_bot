@@ -1,18 +1,5 @@
-from pprint import pprint
-
-import aioschedule
-from asyncio import sleep
-
-import asyncio
-from aiogram.utils.exceptions import ChatNotFound
-
-from data.config import DEFAULT_USERNAME
-from utils.db_api.db import MarathonMembersModel, TimestampsModel, \
-    ModeratorsModel, OutOfMarathonUsersModel
+from utils.db_api.db import MarathonMembersModel, TimestampsModel, ModeratorsModel, OutOfMarathonUsersModel
 from loader import bot
-from datetime import datetime
-import time
-from datetime import timedelta, datetime
 from utils.motivational_phrases.phrases import get_motivational_phrase_by_marathon_day
 
 from keyboards.inline.moderators import update_marathon_member_statistic_markup, kick_marathon_member_markup
@@ -73,7 +60,7 @@ async def notify_marathon_member_about_fail_first_timestamp(marathon_member):
     message = f"Это действие должно быть выполнено до " \
               f"{get_second_timestamp_deadline_time(marathon_member.wakeup_time)}. " \
               f"У вас пропуск. Всего возможно 3 пропуска. " \
-              "Сейчас вы можете дальше продолжить челленж"
+              "Сейчас вы можете дальше продолжить челлендж"
     await send_message(marathon_member.telegram_id, message)
 
 
@@ -106,7 +93,7 @@ async def notify_moderator_about_kick_marathon_member(marathon_member):
 async def check_timestamps():
     timestamps = await TimestampsModel.get_timestamps_by_filters(datetime.now().strftime("%d.%m.%Y"), completed=False)
     for timestamp in timestamps:
-        # Если прошло 70 минут с момента
+        # Если прошло 70 минут с момента подъема
         if int(time.time()) - timestamp.last_timestamp > 0:
             marathon_member = await MarathonMembersModel.get_marathon_member_by_pk(timestamp.marathon_member_id)
             await update_timestamp_by_pk(timestamp.pk, completed=True)
@@ -114,4 +101,5 @@ async def check_timestamps():
             if marathon_member.failed_days + 1 == MAX_FAILED_DAYS:
                 await notify_moderator_about_kick_marathon_member(marathon_member)
             else:
-                await notify_moderator_about_failed_day(marathon_member)
+                if not timestamp.first_timestamp_success:
+                    await notify_moderator_about_failed_day(marathon_member)

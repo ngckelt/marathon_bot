@@ -71,6 +71,7 @@ async def catch_message(message: types.Message):
                     else:
                         # await message.reply("Опоздал с видеосообщением")
                         await notify_marathon_member_about_fail_day(marathon_member)
+                        await update_timestamp_by_pk(timestamp.pk, report_later=True)
                 else:
                     ...
                     # await message.reply("Слишком рано")

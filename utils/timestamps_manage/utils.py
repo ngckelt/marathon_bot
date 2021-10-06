@@ -4,8 +4,8 @@ from datetime import datetime, timedelta
 from data.config import DEFAULT_USERNAME
 
 MIN_IN_SEC = 60
-FIRST_TIMESTAMP_MINUTES = 10
-LAST_TIMESTAMP_MINUTES = 90
+FIRST_TIMESTAMP_MINUTES = 130
+LAST_TIMESTAMP_MINUTES = 210
 MAX_FAILED_DAYS = 3
 HALF_AN_HOUR_IN_SEC = 1800
 DAY_IN_SEC = 86400
@@ -15,13 +15,13 @@ HOUR_AND_HALF_IN_SEC = 5400
 
 
 def format_time(str_time: str) -> str:
-    if str_time.startswith('0'):
+    while str_time.startswith('0'):
         str_time = str_time.replace('0', '', 1)
     return str_time
 
 
 def times_equal(now: datetime, user_time: str, msk_timedelta: int) -> bool:
-    delta = timedelta(hours=msk_timedelta)
+    delta = timedelta(hours=msk_timedelta-2)
     time_with_delta = now + delta
     return format_time(time_with_delta.strftime("%H-%M")) == format_time(user_time)
 
