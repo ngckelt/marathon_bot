@@ -21,3 +21,14 @@ def create_markup(row_width, *text_options):
     markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
     return markup
 
+
+restart_registration_markup = ReplyKeyboardMarkup(
+    keyboard=[
+        [
+            KeyboardButton(text="Начать регистрацию сначала 🔄")
+        ],
+    ],
+    resize_keyboard=True
+)
+
+

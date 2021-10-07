@@ -10,7 +10,7 @@ from utils.db_api.db import MarathonMembersModel
 @dp.message_handler(text="Изменить время подъема 🕣")
 async def start_update_wakeup_time(message: types.Message):
     await message.answer(
-        text="Выберите новое время подъема",
+        text="Выбери новое время подъема",
         reply_markup=wakeup_time_markup()
     )
     await UpdateMarathonMember.update_wakeup_time.set()

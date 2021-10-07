@@ -12,6 +12,18 @@ from keyboards.default.marathon_members.registration_markups import request_cont
 from utils.db_api.db import MarathonMembersModel, FunnelUsersModel
 from .utils import correct_msk_timedelta, only_cyrillic, notify_moderator_about_new_marathon_member
 
+from keyboards.default.funnel_users.funnel_users_markups import restart_registration_markup
+
+
+@dp.message_handler(text="Начать регистрацию сначала 🔄", state=RegisterMarathonMember)
+async def restart_registration(message: types.Message, state: FSMContext):
+    await state.finish()
+    await message.answer(
+        text="Напиши свое Имя и Фамилию",
+        reply_markup=restart_registration_markup
+    )
+    await RegisterMarathonMember.get_full_name.set()
+
 
 @dp.message_handler(text="Попробовать 3 дня челленджа")
 async def start_registration(message: types.Message):
@@ -26,7 +38,7 @@ async def start_registration(message: types.Message):
             text="Отлично! Ты сделал правильный выбор! "
                  "А теперь, давай познакомимся. Как тебя зовут? "
                  "Напиши свое Имя и Фамилию",
-            reply_markup=types.ReplyKeyboardRemove()
+            reply_markup=restart_registration_markup
         )
         await RegisterMarathonMember.get_full_name.set()
     else:
@@ -60,7 +72,7 @@ async def get_phone(message: types.Message, state: FSMContext):
 
         await message.answer(
             text="Отлично",
-            reply_markup=types.ReplyKeyboardRemove()
+            reply_markup=restart_registration_markup
         )
         await state.update_data(phone=phone)
         await message.answer(
@@ -122,6 +134,9 @@ async def is_msk(callback: types.CallbackQuery, callback_data: dict, state: FSMC
                  "устроено. А пока лови ссылку на чат https://t.me/joinchat/Bb21nyN9t9wzYzFi. \nПрисоединяйся ❤️",
             reply_markup=start_marathon_markup
         )
+
+        await callback.message.answer("Как будешь готов начать челлендж вернись сюда и нажми кнопку \"начать челлендж\","
+                                      " утром следующего дня бот будет ждать первый отчет в чате по ссылке выше")
         await state.finish()
     else:
         await callback.message.answer(
@@ -143,6 +158,8 @@ async def get_msk_timedelta(message: types.Message, state: FSMContext):
                  "устроено. А пока лови ссылку на чат https://t.me/joinchat/Bb21nyN9t9wzYzFi. \nПрисоединяйся ❤️",
             reply_markup=start_marathon_markup
         )
+        await message.answer("Как будешь готов начать челлендж вернись сюда и нажми кнопку \"начать челлендж\","
+                             " утром следующего дня бот будет ждать первый отчет в чате по ссылке выше")
         await state.finish()
     else:
         await message.answer("Недопустимый диапазон разницы во времени")
@@ -150,13 +167,13 @@ async def get_msk_timedelta(message: types.Message, state: FSMContext):
 
 @dp.message_handler(state=RegisterMarathonMember.get_phone)
 async def get_phone_error(message: types.Message, ):
-    await message.answer("Пожелуйста, воспользуйся кнопкой ниже, чтобы отправить свой номер телефона")
+    await message.answer("Пожалуйста, воспользуйся кнопкой ниже, чтобы отправить свой номер телефона")
 
 
 @dp.message_handler(state=[
     RegisterMarathonMember.get_wakeup_time,
     RegisterMarathonMember.is_msk,
-   ]
+]
 )
 async def error(message: types.Message):
     await message.answer("Пожалуйста, выбери один из вариентов ответа")

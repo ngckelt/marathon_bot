@@ -17,6 +17,7 @@ class MarathonMembersModel:
     @staticmethod
     @sync_to_async
     def add_marathon_member(telegram_id, username, first_name, last_name, phone, msk_timedelta, wakeup_time):
+        username = username if username is not None else DEFAULT_USERNAME
         MarathonMembers.objects.create(
             telegram_id=telegram_id,
             username=username,
@@ -66,6 +67,7 @@ class FunnelUsersModel:
     @staticmethod
     @sync_to_async
     def add_funnel_user(telegram_id, username, last_message, last_update_time):
+        username = username if username is not None else DEFAULT_USERNAME
         FunnelUsers.objects.create(
             telegram_id=telegram_id,
             username=username,

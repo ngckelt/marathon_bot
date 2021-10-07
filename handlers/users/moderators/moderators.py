@@ -24,8 +24,8 @@ async def update_marathon_member_statistic(callback: types.CallbackQuery, callba
         text += "Зачтено"
         await MarathonMembersModel.update_marathon_member(
             telegram_id=marathon_member_telegram_id,
-            marathon_day=marathon_member.marathon_day + 1,
-            failed_days=marathon_member.failed_days - 1
+            marathon_day=(marathon_member.marathon_day + 1),
+            failed_days=(marathon_member.failed_days - 1)
         )
         try:
             await bot.send_message(
