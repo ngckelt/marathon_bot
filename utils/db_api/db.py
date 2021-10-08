@@ -124,7 +124,7 @@ class TimestampsModel:
     @staticmethod
     @sync_to_async
     def get_timestamp(marathon_member, date=None):
-        return Timestamps.objects.filter(marathon_member=marathon_member, date=date).first()
+        return Timestamps.objects.filter(marathon_member=marathon_member, date=date, completed=False).first()
 
     @staticmethod
     @sync_to_async
