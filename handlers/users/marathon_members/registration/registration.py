@@ -13,6 +13,7 @@ from utils.db_api.db import MarathonMembersModel, FunnelUsersModel
 from .utils import correct_msk_timedelta, only_cyrillic, notify_moderator_about_new_marathon_member
 
 from keyboards.default.funnel_users.funnel_users_markups import restart_registration_markup
+from utils.chat_link.chat_link import get_chat_link
 
 
 @dp.message_handler(text="Начать регистрацию сначала 🔄", state=RegisterMarathonMember)
@@ -147,6 +148,7 @@ async def is_msk(callback: types.CallbackQuery, callback_data: dict, state: FSMC
         await RegisterMarathonMember.get_msk_timedelta.set()
 
 
+# https://t.me/joinchat/Bb21nyN9t9wzYzFi
 @dp.message_handler(state=RegisterMarathonMember.get_msk_timedelta)
 async def get_msk_timedelta(message: types.Message, state: FSMContext):
     msk_timedelta = message.text
@@ -155,7 +157,7 @@ async def get_msk_timedelta(message: types.Message, state: FSMContext):
         await finish_registration(message.from_user.id, message.from_user.username, state)
         await message.answer(
             text="В ближайшие несколько часов с тобой свяжется ментор челленджа и подробнее расскажет как у нас всё "
-                 "устроено. А пока лови ссылку на чат https://t.me/joinchat/Bb21nyN9t9wzYzFi. \nПрисоединяйся ❤️",
+                 f"устроено. А пока лови ссылку на чат {get_chat_link()}. \nПрисоединяйся ❤️",
             reply_markup=start_marathon_markup
         )
         await message.answer("Как будешь готов начать челлендж вернись сюда и нажми кнопку \"начать челлендж\","

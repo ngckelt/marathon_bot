@@ -8,7 +8,6 @@ from keyboards.default.funnel_users.funnel_users_markups import create_markup
 from keyboards.inline.funnel_users import funnel_users_markups as inline_funnel_users_markups
 
 from utils.db_api.db import FunnelUsersModel, ReviewsModel, MarathonMembersModel
-
 from states.funnel_users.funnel_users import FunnelUsers
 
 
