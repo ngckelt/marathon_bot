@@ -37,11 +37,11 @@ async def has_idea(message: types.Message, state: FSMContext):
     await FunnelUsers.is_interested.set()
 
 
-@dp.message_handler(CommandStart())
+@dp.message_handler(CommandStart(), state="*")
 async def bot_start(message: types.Message, state: FSMContext):
+    await state.finish()
     marathon_member = await MarathonMembersModel.get_marathon_member(message.from_user.id)
     if marathon_member is None:
-        await state.finish()
         await FunnelUsersModel.add_funnel_user(
             telegram_id=message.from_user.id,
             username=message.from_user.username,
