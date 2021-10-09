@@ -1,6 +1,7 @@
 from utils.db_api.db import MarathonMembersModel, TimestampsModel
 from datetime import datetime
-from utils.timestamps_manage.utils import times_equal, set_timestamp, FIRST_TIMESTAMP_MINUTES, LAST_TIMESTAMP_MINUTES
+from utils.timestamps_manage.utils import times_equal, set_timestamp, get_marathon_member_date, \
+    FIRST_TIMESTAMP_MINUTES, LAST_TIMESTAMP_MINUTES
 
 
 async def add_timestamps_for_marathon_members():
@@ -12,7 +13,7 @@ async def add_timestamps_for_marathon_members():
                 marathon_member=member,
                 first_timestamp=set_timestamp(FIRST_TIMESTAMP_MINUTES),
                 last_timestamp=set_timestamp(LAST_TIMESTAMP_MINUTES),
-                date=datetime.now().strftime("%d.%m.%Y")
+                date=get_marathon_member_date(marathon_member=member)
             )
 
 

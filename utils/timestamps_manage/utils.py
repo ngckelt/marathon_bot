@@ -53,3 +53,12 @@ def get_marathon_member_contact(marathon_member):
     else:
         contacts += f"{marathon_member.phone}"
     return contacts
+
+
+def get_marathon_member_date(marathon_member):
+    now = datetime.now()
+    delta = timedelta(hours=marathon_member.msk_timedelta+2)
+    time_with_delta = now + delta
+    return time_with_delta.strftime("%d.%m.%Y")
+
+

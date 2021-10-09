@@ -11,7 +11,7 @@ from utils.timestamps_manage.timestamps_manage import notify_marathon_member_abo
     update_timestamp, notify_marathon_member_about_fail_first_timestamp, notify_moderator_about_failed_timestamp, \
     update_marathon_member, notify_marathon_member_about_success_last_timestamp, notify_marathon_member_about_fail_day, \
     get_second_timestamp_deadline_time, notify_moderator_about_kick_marathon_member, get_first_timestamp_deadline_time, \
-    update_timestamp_by_pk
+    update_timestamp_by_pk, get_marathon_member_date
 
 from utils.timestamps_manage.utils import MAX_FAILED_DAYS
 
@@ -20,7 +20,7 @@ from utils.timestamps_manage.utils import MAX_FAILED_DAYS
 async def catch_video_note(message: types.Message):
     marathon_member = await MarathonMembersModel.get_marathon_member(message.from_user.id)
     if marathon_member is not None:
-        timestamp = await TimestampsModel.get_timestamp(marathon_member, datetime.now().strftime("%d.%m.%Y"))
+        timestamp = await TimestampsModel.get_timestamp(marathon_member, get_marathon_member_date(marathon_member))
         if timestamp is not None:
             current_time = time.time()
             # Видеосообщение вовремя
@@ -54,7 +54,7 @@ async def catch_video_note(message: types.Message):
 async def catch_message(message: types.Message):
     marathon_member = await MarathonMembersModel.get_marathon_member(message.from_user.id)
     if marathon_member is not None:
-        timestamp = await TimestampsModel.get_timestamp(marathon_member, datetime.now().strftime("%d.%m.%Y"))
+        timestamp = await TimestampsModel.get_timestamp(marathon_member, get_marathon_member_date(marathon_member))
         if timestamp is not None:
             current_time = time.time()
             # Текстовое соощение вовремя
