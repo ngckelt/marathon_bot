@@ -35,19 +35,20 @@ async def catch_video_note(message: types.Message):
                     await message.reply(text=message_text)
             # Опоздал видеосообщение
             elif timestamp.first_timestamp - current_time < 0:
-                # Если это 3й пропуск
-                if marathon_member.failed_days + 1 == MAX_FAILED_DAYS:
-                    await message.reply(f"Это действие должно быть выполнено до {marathon_member.wakeup_time}. "
-                                        f"Это уже 3й пропуск. Ты обнулился")
-                    await notify_moderator_about_kick_marathon_member(marathon_member)
-                    await update_marathon_member(marathon_member, failed_days=MAX_FAILED_DAYS, on_marathon=False)
-                else:
-                    await message.reply(f"Это действие должно быть выполнено до "
-                                        f"{get_first_timestamp_deadline_time(marathon_member.wakeup_time)}. "
-                                        f"У вас пропуск. Всего возможно 3 пропуска. Сейчас вы можете дальше "
-                                        f"продолжить челленж")
-                    await update_marathon_member(marathon_member, failed_days=marathon_member.failed_days + 1)
-                    await notify_moderator_about_failed_timestamp(marathon_member)
+                if not timestamp.first_timestamp_success:
+                    # Если это 3й пропуск
+                    if marathon_member.failed_days + 1 == MAX_FAILED_DAYS:
+                        await message.reply(f"Это действие должно быть выполнено до {marathon_member.wakeup_time}. "
+                                            f"Это уже 3й пропуск. Ты обнулился")
+                        await notify_moderator_about_kick_marathon_member(marathon_member)
+                        await update_marathon_member(marathon_member, failed_days=MAX_FAILED_DAYS, on_marathon=False)
+                    else:
+                        await message.reply(f"Это действие должно быть выполнено до "
+                                            f"{get_first_timestamp_deadline_time(marathon_member.wakeup_time)}. "
+                                            f"У вас пропуск. Всего возможно 3 пропуска. Сейчас вы можете дальше "
+                                            f"продолжить челленж")
+                        await update_marathon_member(marathon_member, failed_days=marathon_member.failed_days + 1)
+                        await notify_moderator_about_failed_timestamp(marathon_member)
 
 
 @dp.message_handler(GroupOnly())
