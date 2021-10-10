@@ -49,6 +49,7 @@ async def catch_video_note(message: types.Message):
                                             f"продолжить челленж")
                         await update_marathon_member(marathon_member, failed_days=marathon_member.failed_days + 1)
                         await notify_moderator_about_failed_timestamp(marathon_member)
+                    await update_timestamp_by_pk(timestamp.pk, completed=True)
 
 
 @dp.message_handler(GroupOnly())
