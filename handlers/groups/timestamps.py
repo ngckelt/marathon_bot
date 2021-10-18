@@ -79,5 +79,10 @@ async def catch_message(message: types.Message):
                     # await message.reply("Слишком рано")
             else:
                 if not timestamp.report_later:
-                    await update_timestamp_by_pk(timestamp.pk, report_later=True)
+                    await update_timestamp_by_pk(timestamp.pk, report_later=True, completed=True)
+                    await notify_moderator_about_failed_timestamp(marathon_member)
+                    await notify_marathon_member_about_fail_day(marathon_member)
                 # await message.reply("Опоздал")
+
+
+
