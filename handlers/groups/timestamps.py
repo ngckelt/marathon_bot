@@ -71,9 +71,10 @@ async def catch_message(message: types.Message):
                         await update_timestamp_by_pk(timestamp.pk, last_timestamp_success=True, completed=True)
                     # Если опоздал с видеосообщением
                     else:
-                        # await message.reply("Опоздал с видеосообщением")
                         await notify_marathon_member_about_fail_day(marathon_member)
-                        await update_timestamp_by_pk(timestamp.pk, report_later=True)
+                        await notify_moderator_about_failed_timestamp(marathon_member)
+                        await update_timestamp_by_pk(timestamp.pk, report_later=True, completed=True)
+                        await update_marathon_member(marathon_member, failed_days=marathon_member.failed_days + 1)
                 else:
                     ...
                     # await message.reply("Слишком рано")
@@ -82,7 +83,7 @@ async def catch_message(message: types.Message):
                     await update_timestamp_by_pk(timestamp.pk, report_later=True, completed=True)
                     await notify_moderator_about_failed_timestamp(marathon_member)
                     await notify_marathon_member_about_fail_day(marathon_member)
+                    await update_marathon_member(marathon_member, failed_days=marathon_member.failed_days + 1)
                 # await message.reply("Опоздал")
-
 
 
