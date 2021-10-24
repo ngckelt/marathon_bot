@@ -59,10 +59,16 @@ async def notify_marathon_member_about_success_last_timestamp(marathon_member):
 
 
 async def notify_marathon_member_about_fail_first_timestamp(marathon_member):
-    message = f"Это действие должно быть выполнено до " \
+    message = f"Видеосообщение должно быть отправлено до " \
               f"{get_second_timestamp_deadline_time(marathon_member.wakeup_time)}. " \
               f"У вас пропуск. Всего возможно 3 пропуска. " \
               "Сейчас вы можете дальше продолжить челлендж"
+    await send_message(marathon_member.telegram_id, message)
+
+
+async def notify_marathon_member_about_kick_marathon(marathon_member):
+    message = f"Видеосообщение должно быть отправлено до {marathon_member.wakeup_time}. " \
+              f"Это уже 3й пропуск. Ты обнулился"
     await send_message(marathon_member.telegram_id, message)
 
 
@@ -111,9 +117,11 @@ async def check_timestamps():
             await update_marathon_member(marathon_member, failed_days=marathon_member.failed_days + 1)
             if marathon_member.failed_days + 1 == MAX_FAILED_DAYS:
                 await notify_moderator_about_kick_marathon_member(marathon_member)
+                await notify_marathon_member_about_kick_marathon(marathon_member)
             else:
                 if not timestamp.first_timestamp_success:
                     await notify_moderator_about_failed_day(marathon_member)
+                    await notify_marathon_member_about_fail_first_timestamp(marathon_member)
 
 
 
