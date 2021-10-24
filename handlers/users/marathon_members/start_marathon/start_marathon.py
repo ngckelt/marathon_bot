@@ -15,7 +15,10 @@ async def start_marathon(message: types.Message):
                 reply_markup=main_markup
             )
         else:
-            await message.answer("Вы уже участвуете в челлендже")
+            await message.answer(
+                text="Вы уже участвуете в челлендже",
+                reply_markup=main_markup
+            )
     else:
         await message.answer("Для начала зарегистрируйтесь в боте")
 
