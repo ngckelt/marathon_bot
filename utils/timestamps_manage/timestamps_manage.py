@@ -102,15 +102,14 @@ async def check_timestamps():
     timestamps = await TimestampsModel.get_timestamps_by_filters(datetime.now().strftime("%d.%m.%Y"), completed=False)
     for timestamp in timestamps:
         # Если прошло 70 минут с момента подъема
-        if int(time.time()) - timestamp.last_timestamp > 0:
+        if int(time.time()) - timestamp.last_timestamp >= 0:
             marathon_member = await MarathonMembersModel.get_marathon_member_by_pk(timestamp.marathon_member_id)
             await update_timestamp_by_pk(timestamp.pk, completed=True)
             await update_marathon_member(marathon_member, failed_days=marathon_member.failed_days + 1)
             if marathon_member.failed_days + 1 == MAX_FAILED_DAYS:
                 await notify_moderator_about_kick_marathon_member(marathon_member)
             else:
-                if not timestamp.first_timestamp_success:
-                    await notify_moderator_about_failed_day(marathon_member)
+                await notify_moderator_about_failed_day(marathon_member)
         elif int(time.time()) - timestamp.first_timestamp >= 0 and not timestamp.first_timestamp_success:
             marathon_member = await MarathonMembersModel.get_marathon_member_by_pk(timestamp.marathon_member_id)
             await update_timestamp_by_pk(timestamp.pk, completed=True)
