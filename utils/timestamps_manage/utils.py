@@ -40,7 +40,7 @@ def get_second_timestamp_deadline_time(time: str) -> str:
 
 def get_first_timestamp_deadline_time(time: str) -> str:
     return {
-        '5-00': '6:10',
+        '5-00': '5:10',
         '5-30': '5:40',
         '6-00': '6:10',
     }.get(time)
@@ -60,5 +60,14 @@ def get_marathon_member_date(marathon_member):
     delta = timedelta(hours=marathon_member.msk_timedelta+2)
     time_with_delta = now + delta
     return time_with_delta.strftime("%d.%m.%Y")
+
+
+def get_fail_first_timestamp_message(marathon_member):
+    deadline_time = get_first_timestamp_deadline_time(marathon_member.wakeup_time)
+    message = f"Видео-сообщение должно быть отправлено до <b>{deadline_time}</b>. У вас пропуск. Всего возможно 3 пропуска. " \
+              "Сейчас вы можете дальше продолжить челлендж. Не расстраивайся! ✨ И обязательно сними " \
+              "видео-сообщение, во сколько бы ты не встал. Поделись, почему не удалось прислать отчёт вовремя."
+    return message
+
 
 
