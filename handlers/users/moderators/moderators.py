@@ -58,7 +58,7 @@ async def kick_marathon_member(callback: types.CallbackQuery, callback_data: dic
 
     marathon_member = await MarathonMembersModel.get_marathon_member(marathon_member_telegram_id)
     if accept == 'False':
-        text += "Не ачтено"
+        text += "Не зачтено"
         # Удалить из чата и отправить пользователю уведомление
         moderator = await ModeratorsModel.get_moderator()
         kick_message = f"Привет, {marathon_member.first_name} {marathon_member.last_name}! " \
