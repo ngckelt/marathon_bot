@@ -29,8 +29,8 @@ class MarathonMembers(Users):
     phone = models.CharField(verbose_name="Телефон", max_length=100, null=True)
     msk_timedelta = models.IntegerField(verbose_name="Разница с Москвой", default=0)
     wakeup_time = models.CharField(verbose_name="Время подъема", max_length=10)
-    marathon_day = models.PositiveIntegerField(verbose_name="День марафона", default=1)
-    failed_days = models.PositiveIntegerField(verbose_name="Дней пропущено", default=0)
+    marathon_day = models.BigIntegerField(verbose_name="День марафона", default=1)
+    failed_days = models.BigIntegerField(verbose_name="Дней пропущено", default=0)
     on_marathon = models.BooleanField(verbose_name="Участвует в марафоне", default=False)
 
     def __str__(self):
